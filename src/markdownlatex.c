@@ -1,66 +1,31 @@
 #include <stdio.h>
 #include "lexer.h"
+#include "parserstringops.h"
+#include "stdvals.h"
 
-#define TRUE 1
-#define FALSE 0
-
-#define BUF_SIZE 600
+#define BUF_SIZE 800
 #define END_OF_LINE_BUFFER_SIZE 50
 
-int getLine(char* buf, int length);
-int findMatch(char* string, int stringLength, char* buf, int bufSize);
+int parseLine(char* string, int stringLength, char* buf, int bufSize);
 int getStringLength(char* string);
 
-//typedef enum {NONE, H1, H2, BOLD} FormatType;
-
-typedef char bool;
-
 //Are we are currently in a list?
-bool inList = FALSE;
-bool inBold = FALSE;
-bool inItalic = FALSE;
-bool inUnderline = FALSE;
-bool isCode = FALSE;
+char inList = FALSE;
+char inBold = FALSE;
+char inItalic = FALSE;
+char inUnderline = FALSE;
+char isCode = FALSE;
 
-int getLine(char* buf, int length)
-{
-    int i = 0;
-    char c = 0;
-    
-    do {
-        c = getchar();
-        if(c == EOF) {
-            return FALSE;
-        } else if(c == '\n') {
-            buf[i] = '\0';
-            return TRUE;
-        } else {
-            buf[i] = c;
-        }
-        i++;
-    } while(c != '\n' && i < length);
-    return TRUE;
-}
-
-int writeStringToBuffer(char* string, char* buf, int bufIndex) {
-    int i=0;
-    bufIndex--;
-    while(string[i] != '\0') {
-        buf[++bufIndex] = string[i];
-        ++i;
-    }
-    return TRUE;
-}
-
-int findMatch(char* string, int stringLength, char* buf, int bufSize)
+int parseLine(char* string, int stringLength, char* buf, int bufSize)
 {
     char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
     int endOfLineIndex = 0;
     int j = 0;
     int i = 0;
 
+
+    //Do the things which are only valid if they apear at the start of a line
     Symbol lineStart = lex(string);
-    //printf("Symbol %d at %d\n", lineStart.type, lineStart.loc);
     
     if(inList) {
         if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
@@ -86,11 +51,12 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
         }
     }
 
+    //Go deeper into the markdown looking for symbols
     for(; i<stringLength; i++, j++) {
 
         //Lex from the current character
         Symbol s = lex(string + i);
-        s.loc += i;
+        s.loc += i; //change loc to be in terms of string
 
         //Move up to next symbol the lexer 
         while( i < s.loc ) {
@@ -99,6 +65,9 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
             j++;
         }
 
+        /////////////////////////////////////////////////////////////////
+        // One very long else-if statement handling each possible type //
+        /////////////////////////////////////////////////////////////////        
         if(isCode || s.type == CODE) {
             if(isCode && s.type == CODE) {
                 writeStringToBuffer("\\end{lstlisting}", buf, j);
@@ -147,7 +116,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
             writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line
 
-            i += 2; //Go past the extra character we looked fowards too
+            i += 2; //Go past the extra characters we looked fowards too
             
         } else if(s.type == BOLD) {
             //Bold text
@@ -196,29 +165,20 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
             writeStringToBuffer("\\hrulefill", buf, j);
             j+= 10;
             buf[j] = '\0';
-            return TRUE;
+            return 0;
         } else {
             buf[j] = string[i];
         }
     }
     
+    //Write anything which has been delayed till the end of line has been reached (eg. close any headings)
     if(endOfLineIndex > 0) {
         endOfLineBuff[endOfLineIndex] = '\0';
-        //printf("End of line buffer:%s :: %d :: %d\n", endOfLineBuff, endOfLineIndex, j);   
         writeStringToBuffer(endOfLineBuff, buf, j);
         j += endOfLineIndex;
     }
     buf[j] = '\0';
-    return 1;
-}
-
-int getStringLength(char* string)
-{
-    int i=0;
-    while(string[i] != '\0') {
-        i++;
-    }
-    return i;
+    return 0;
 }
 
 int main()
@@ -228,9 +188,9 @@ int main()
     char buf2[BUF_SIZE];
     //printf("Hello world\n");
     while( getLine(buf, BUF_SIZE) > 0 ) {
-        //getLine(buf, BUF_SIZE);
-        findMatch(buf, getStringLength(buf), buf2, 200);
+        parseLine(buf, getStringLength(buf), buf2, 200);
         printf("%s\n", buf2);
     }
     printf("\\end{document}\n");
+    return 0;
 }

@@ -18,7 +18,7 @@ Note: Currently markdownlatex uses the standard input and standard output to do 
 The file can be compiled with the following command
 
 ```bash
-gcc src/markdownlatex.c src/lexer.c -std=c99 -o bin/markdownlatex
+gcc src/markdownlatex.c src/lexer.c src/parserstringops.c -std=c99 -o bin/markdownlatex
 ```
 
 ##Supported markdown
