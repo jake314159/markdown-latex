@@ -11,3 +11,5 @@ int getStringLength(char* string);
 
 int compare(char* string1, char* string2);
 
+
+

@@ -8,6 +8,12 @@ Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used w
 Once compiled (see compile section) the code can be run as followed
 
 ```bash
+markdownlatex -o output_tex.tex input_markdown.md
+```
+
+It can also be run with this command
+
+```bash
 markdownlatex example.md > output.tex
 ```
 
@@ -16,8 +22,6 @@ It can also be run with the command
 ```bash
 markdownlatex < example.md > output.tex
 ```
-
-Note: Currently markdown-latex uses the standard output to set the output file. In the future it will be possible to supply these files as arguments
 
 ##Compile
 

@@ -183,23 +183,37 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
 
 int main ( int argc, char *argv[] )
 {
-
-    printf("\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
+    char* outFile = NULL;
+    for(int i=0; i<argc-1; i++) {
+        if(argv[i][0] == '-' && argv[i][1] == 'o') {
+            outFile = argv[++i];
+        }
+    }
+    if(outFile == NULL) {
+        fprintf(stderr, "ERROR NO OUTPUT FILE SPECIFIED\n");
+        return 0;
+    }
 
     //Use std in as a default
     FILE *fp = stdin;
+	FILE *fout = stdout;
     if(argc > 1) {
         fp = fopen(argv[argc-1], "r"); // error check this!
+        fout = fopen(outFile, "w");
     }
-    
-    
+
+    if(fp == NULL) fp = stdin;
+    if(fout == NULL) fout = stdout;
+	    
+    fprintf(fout, "\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
     char buf[BUF_SIZE];
     char buf2[BUF_SIZE];
     //printf("Hello world\n");
+    
     while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
         parseLine(buf, getStringLength(buf), buf2, 200);
-        printf("%s\n", buf2);
+        fprintf(fout, "%s\n", buf2);
     }
-    printf("\\end{document}\n");
+    fprintf(fout, "\\end{document}\n");
     return 0;
 }
