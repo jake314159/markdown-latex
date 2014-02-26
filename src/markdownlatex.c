@@ -1,9 +1,10 @@
 #include <stdio.h>
+#include "lexer.h"
 
 #define TRUE 1
 #define FALSE 0
 
-#define BUF_SIZE 200
+#define BUF_SIZE 600
 #define END_OF_LINE_BUFFER_SIZE 50
 
 int getLine(char* buf, int length);
@@ -19,6 +20,8 @@ typedef char bool;
 bool inList = FALSE;
 bool inBold = FALSE;
 bool inItalic = FALSE;
+bool inUnderline = FALSE;
+bool isCode = FALSE;
 
 int getLine(char* buf, int length)
 {
@@ -56,9 +59,12 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
     int endOfLineIndex = 0;
     int j = 0;
     int i = 0;
+
+    Symbol lineStart = lex(string);
+    //printf("Symbol %d at %d\n", lineStart.type, lineStart.loc);
     
     if(inList) {
-        if(string[0] == '+') {
+        if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
             writeStringToBuffer("\\item ", buf, 0);
             j += 5;
             i++;
@@ -71,7 +77,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
         }
     } else {
         //We aren't in a list but we just found a new one
-        if(string[0] == '+') {
+        if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
             inList = TRUE;
             writeStringToBuffer("\\begin{itemize}\n\\item", buf, 0);
             j += 21;
@@ -83,7 +89,33 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
 
     for(; i<stringLength; i++, j++) {
 
-        if(string[i] == '#' && string[i+1] != '#') {
+        //Lex from the current character
+        Symbol s = lex(string + i);
+        s.loc += i;
+
+        //Move up to next symbol the lexer 
+        while( i < s.loc ) {
+            buf[j] = string[i];
+            i++;
+            j++;
+        }
+
+        if(isCode || s.type == CODE) {
+            if(isCode && s.type == CODE) {
+                writeStringToBuffer("\\end{lstlisting}", buf, j);
+                isCode = FALSE;
+                i += 2;
+                j += 15;
+            } else if(!isCode){
+                writeStringToBuffer("\\begin{lstlisting}[frame=single]", buf, j);
+                isCode = TRUE;
+                i += 2;
+                j += 31;
+            } else {  
+                //Note skip if not code formatting BUT is within a code block
+                buf[j] = string[i];
+            }
+        } else if(s.type == H1) {
               //Section
             writeStringToBuffer("\\section*{", buf, j);
             j += 9; //length of the added string
@@ -93,7 +125,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
             endOfLineIndex += 1; //length added to end of line
            
             
-        } else if(string[i] == '#' && string[i+1] == '#' && string[i+2] != '#') {
+        } else if(s.type == H2) {
              //Subsection
             writeStringToBuffer("\\subsection*{", buf, j);
             j += 12; //length of the added string
@@ -104,7 +136,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
 
             i += 1; //Go past the extra character we looked fowards too
             
-        } else if(string[i] == '#' && string[i+1] == '#' && string[i+2] == '#' && string[i+3] != '#') {
+        } else if(s.type == H3) {
              //Subsubsection
             writeStringToBuffer("\\subsubsection*{", buf, j);
             j += 15; //length of the added string
@@ -115,7 +147,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
 
             i += 2; //Go past the extra character we looked fowards too
             
-        } else if(string[i] == '*' && string[i+1] == '*') {
+        } else if(s.type == BOLD) {
             //Bold text
             if(inBold) {
                 writeStringToBuffer("}", buf, j);
@@ -128,7 +160,7 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
                 i += 1;
                 j += 7;
             }   
-        } else if(string[i] == '*' && string[i+1] != '*') {
+        } else if(s.type == ITALIC) {
             //Bold text
             if(inItalic) {
                 writeStringToBuffer("}", buf, j);
@@ -141,10 +173,33 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
                 i += 0;
                 j += 7;
             }   
+        } else if(s.type == UNDERLINE) {
+            //Bold text
+            if(inUnderline) {
+                writeStringToBuffer("}", buf, j);
+                inUnderline = FALSE;
+                i += 0;
+                j += 0;
+            } else {
+                writeStringToBuffer("\\underline{", buf, j);
+                inUnderline = TRUE;
+                i += 0;
+                j += 10;
+            }   
+        } else if(s.type == PAGE_BREAK) { 
+            writeStringToBuffer("\\newpage ", buf, j);
+            i += 3;
+            j += 8;
+        } else if(s.type == HORIZONTAL_RULE) {
+            writeStringToBuffer("\\hrulefill", buf, j);
+            j+= 10;
+            buf[j] = '\0';
+            return TRUE;
         } else {
             buf[j] = string[i];
         }
     }
+    
     if(endOfLineIndex > 0) {
         endOfLineBuff[endOfLineIndex] = '\0';
         //printf("End of line buffer:%s :: %d :: %d\n", endOfLineBuff, endOfLineIndex, j);   
@@ -176,7 +231,7 @@ int getStringLength(char* string)
 
 int main()
 {
-    printf("\\documentclass[11pt,a4paper,oneside]{report}\n\\begin{document}\n\n");
+    printf("\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
     char buf[BUF_SIZE];
     char buf2[BUF_SIZE];
     //printf("Hello world\n");

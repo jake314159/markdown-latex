@@ -20,7 +20,7 @@ Compile
 The file can be compiled with the following command
 
 ```bash
-gcc src/markdownlatex.c -std=c99 -o bin/markdownlatex
+gcc src/markdownlatex.c src/lexer.c -std=c99 -o bin/markdownlatex
 ```
 
 Supported markdown
@@ -31,16 +31,18 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Headers H1-H2 done with hashes (#)
 + Lists done with + operators
 + Bold
++ Italic
 + Underline
++ Code blocks
++ Page break - not standard markdown but can be done with "\\\\\\\\" (without the quotes)
 
 Markdown syntax TODO
 --------------
-+ Lists with - and *
++ Lists with *
 + Ordered lists
 + Lists with multiple paragraphs
-+ underline
 + Strike through
-+ Line/Page breaks
++ Line breaks
 + Block quotes
 + Nested block quotes
 + Tables
@@ -48,7 +50,7 @@ Markdown syntax TODO
 + Links
 + Symbols
 + Math
-+ Code blocks
++ Code highlighting
 + Horizontal rules (3 or more * or - (ignoring spaces))
 + Backslash escapes
 
