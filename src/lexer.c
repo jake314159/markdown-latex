@@ -34,10 +34,10 @@ Symbol lex(char* string)
         } else if(string[i] == '_' && string[i+1] != '_') {
             Symbol s = {i, UNDERLINE};
             return s;
-        } else if(string[i] == '\\' && string[i+1] == '\\' && string[i+2] == '\\' && string[i+3] == '\\' ) {
+        } /*else if(string[i] == '\\' && string[i+1] == '\\' && string[i+2] == '\\' && string[i+3] == '\\' ) {
             Symbol s = {i, PAGE_BREAK};
             return s;
-        } else if(string[i] == '`' && string[i+1] == '`' && string[i+2] == '`') {
+        }*/ else if(string[i] == '`' && string[i+1] == '`' && string[i+2] == '`') {
             Symbol s = {i, CODE};
             return s;
         }  else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\n') {

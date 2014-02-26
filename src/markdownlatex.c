@@ -8,7 +8,6 @@
 #define END_OF_LINE_BUFFER_SIZE 50
 
 int getLine(char* buf, int length);
-int parseLine(char* line, int lineLength, char* buf, int bufSize);
 int findMatch(char* string, int stringLength, char* buf, int bufSize);
 int getStringLength(char* string);
 
@@ -115,6 +114,9 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
                 //Note skip if not code formatting BUT is within a code block
                 buf[j] = string[i];
             }
+        } else if(s.type == ESCAPE) {
+            buf[j] = string[i+1];
+            i += 1;
         } else if(s.type == H1) {
               //Section
             writeStringToBuffer("\\section*{", buf, j);
@@ -208,16 +210,6 @@ int findMatch(char* string, int stringLength, char* buf, int bufSize)
     }
     buf[j] = '\0';
     return 1;
-}
-
-int parseLine(char* line, int lineLength, char* buf, int bufSize)
-{
-    //FormatType format = findMatch(line, lineLength);
-    /*while(format != NONE) {
-        
-        format = findMatch(line, lineLength);
-    }*/
-    return 0;
 }
 
 int getStringLength(char* string)
