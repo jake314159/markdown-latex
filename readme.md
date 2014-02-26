@@ -21,10 +21,12 @@ Note: Currently markdown-latex uses the standard output to set the output file. 
 
 ##Compile
 
-The file can be compiled with the following command
+The file can be compiled with the following commands
 
 ```bash
-gcc src/markdownlatex.c src/lexer.c src/parserstringops.c -std=c99 -o bin/markdownlatex
+cd markdownlatex
+make
+make clean
 ```
 
 ##Supported markdown
