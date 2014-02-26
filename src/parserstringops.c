@@ -22,8 +22,27 @@ int getLine(char* buf, int length)
     return TRUE;
 }
 
-int writeStringToBuffer(char* string, char* buf, int bufIndex) 
+int getLineFile(char* buf, int length, FILE* file)
 {
+    int i = 0;
+    char c = 0;
+    
+    do {
+        c = getc(file);
+        if(c == EOF) {
+            return FALSE;
+        } else if(c == '\n') {
+            buf[i] = '\0';
+            return TRUE;
+        } else {
+            buf[i] = c;
+        }
+        i++;
+    } while(c != '\n' && i < length);
+    return TRUE;
+}
+
+int writeStringToBuffer(char* string, char* buf, int bufIndex) {
     int i=0;
     bufIndex--;
     while(string[i] != '\0') {

@@ -1,17 +1,23 @@
 #Markdown Latex
 
 
-Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used with a LaTeX compiler to create pretty documents from markdown
+Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used with a LaTeX compiler to create pretty documents
 
 ##Example running
 
 Once compiled (see compile section) the code can be run as followed
 
 ```bash
+markdownlatex example.md > output.tex
+```
+
+It can also be run with the command
+
+```bash
 markdownlatex < example.md > output.tex
 ```
 
-Note: Currently markdownlatex uses the standard input and standard output to do the conversion. In the future it will be possible to supply the files as arguments
+Note: Currently markdown-latex uses the standard output to set the output file. In the future it will be possible to supply these files as arguments
 
 ##Compile
 
@@ -32,6 +38,8 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Underline
 + Code blocks
 + Page break - not standard markdown but can be done with "\\newpage" (without the quotes)
++ Horizontal rules (3 or more \* or \- (ignoring spaces))
++ Backslash escapes
 
 ##Markdown syntax TODO
 + Lists with \*
@@ -47,9 +55,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Symbols
 + Math
 + Code highlighting
-+ Horizontal rules (3 or more \* or \- (ignoring spaces))
-+ Backslash escapes
-
++ Underlined headings with === and --- for H1 and H2
 
 ##TODO
 + Take file names as parameters

@@ -51,7 +51,7 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
         }
     }
 
-    //Go deeper into the markdown looking for symbols
+    //Go deeper into the string looking for symbols
     for(; i<stringLength; i++, j++) {
 
         //Lex from the current character
@@ -181,13 +181,22 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
     return 0;
 }
 
-int main()
+int main ( int argc, char *argv[] )
 {
+
     printf("\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
+
+    //Use std in as a default
+    FILE *fp = stdin;
+    if(argc > 1) {
+        fp = fopen(argv[argc-1], "r"); // error check this!
+    }
+    
+    
     char buf[BUF_SIZE];
     char buf2[BUF_SIZE];
     //printf("Hello world\n");
-    while( getLine(buf, BUF_SIZE) > 0 ) {
+    while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
         parseLine(buf, getStringLength(buf), buf2, 200);
         printf("%s\n", buf2);
     }
