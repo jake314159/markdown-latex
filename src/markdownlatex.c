@@ -199,7 +199,9 @@ int main ( int argc, char *argv[] )
 	FILE *fout = stdout;
     if(argc > 1) {
         fp = fopen(argv[argc-1], "r"); // error check this!
-        fout = fopen(outFile, "w");
+        if(outFile != NULL) {
+            fout = fopen(outFile, "w");
+        } //else leave as stout
     }
 
     if(fp == NULL) fp = stdin;

@@ -1,7 +1,7 @@
 
 
 
-typedef enum {NONE, BOLD, ITALIC, UNDERLINE, H1, H2, H3, ITEMIZE, PAGE_BREAK, LINE_BREAK, 
+typedef enum {NONE, BOLD, ITALIC, UNDERLINE, H1, H2, H3, ITEMIZE, ENUMERATE, PAGE_BREAK, LINE_BREAK, 
                 CODE, HORIZONTAL_RULE, ESCAPE} FormatType;
 
 typedef struct Symbol {

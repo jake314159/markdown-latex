@@ -1,4 +1,5 @@
 #include "lexer.h"
+#include <ctype.h>
 
 Symbol lex(char* string)
 {
@@ -40,6 +41,15 @@ Symbol lex(char* string)
         }  else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\n') {
             Symbol s = {i, LINE_BREAK};
             return s;
+        } else if(isdigit(string[i])) {
+            //Get the next non number digit
+            int j=i;
+            while(isdigit(string[j]) j++;
+            j++;
+            if(string[j] == '.' || string[j] == ')') {
+                Symbol s = {i, ENUMERATE};
+                return s; 
+            } 
         } 
         i++;
     }
