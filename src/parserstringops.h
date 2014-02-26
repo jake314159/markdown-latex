@@ -9,3 +9,5 @@ int writeStringToBuffer(char* string, char* buf, int bufIndex);
 //Returns the length of a string
 int getStringLength(char* string);
 
+int compare(char* string1, char* string2);
+
