@@ -154,7 +154,7 @@ int parseLine(char* string, int stringLength, FILE* out)
             j += 9; //length of the added string
             
             //endOfLineIndex += 8; //length of the added string
-            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);   //TODO WTF
+            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line
            
             
@@ -241,19 +241,27 @@ int parseLine(char* string, int stringLength, FILE* out)
 int main ( int argc, char *argv[] )
 {
     char* outFile = NULL;
+
+    char* fontSize = NULL;
+    char* doucmentType = NULL;
+    char* marginSize = NULL;
+
     for(int i=0; i<argc-1; i++) {
         if(argv[i][0] == '-' && argv[i][1] == 'o') {
             outFile = argv[++i];
+        } else if(argv[i][0] == '-' && argv[i][1] == 's') {
+            //NOTE only '10pt' '11pt' and '12pt' are valid sizes
+            fontSize = argv[++i];
+        } else if(argv[i][0] == '-' && argv[i][1] == 'd') {
+            doucmentType = argv[++i];
+        } else if(argv[i][0] == '-' && argv[i][1] == 'm') {
+            marginSize = argv[++i];
         }
     }
-    /*if(outFile == NULL) {
-        fprintf(stderr, "ERROR NO OUTPUT FILE SPECIFIED\n");
-        return 0;
-    }*/
 
     //Use std in as a default
     FILE *fp = stdin;
-	FILE *fout = stdout;
+    FILE *fout = stdout;
     if(argc > 1) {
         fp = fopen(argv[argc-1], "r"); // error check this!
         if(outFile != NULL) {
@@ -261,10 +269,15 @@ int main ( int argc, char *argv[] )
         } //else leave as stout
     }
 
-    if(fp == NULL)   fp = stdin;
-    if(fout == NULL) fout = stdout;
-	    
-    fprintf(fout, "\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
+    //Set default settings
+    if(fp == NULL)              fp = stdin;
+    if(fout == NULL)            fout = stdout;
+    if(fontSize == NULL)        fontSize = "11pt";
+    if(marginSize == NULL)      marginSize = "1.5in";
+    if(doucmentType == NULL)    doucmentType = "report";
+    
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
+                        fontSize, doucmentType, marginSize);
     char buf[BUF_SIZE];
     //printf("Hello world\n");
     

@@ -1,3 +1,6 @@
+
+USR_BIN = /usr/bin
+
 all: main
 
 main: markdownlatex.o lexer.o parserstringops.o
@@ -14,6 +17,9 @@ parserstringops.o: src/parserstringops.c
     
 clean:
 	rm -fr bin/*.o
+
+install:
+	cp bin/markdownlatex $(USR_BIN)/markdownlatex
 
 
 #gcc src/markdownlatex.c src/lexer.c src/parserstringops.c -std=c99 -Wall -o bin/markdownlatex
