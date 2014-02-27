@@ -16,6 +16,9 @@ char inItalic = FALSE;
 char inUnderline = FALSE;
 char isCode = FALSE;
 
+//How many empty new lines have we seen in a row?
+int groupedNewLineCount = 0;
+
 int parseLine(char* string, int stringLength, char* buf, int bufSize)
 {
     char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
@@ -23,9 +26,19 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
     int j = 0;
     int i = 0;
 
+    if(string[0] == '\n') {
+        groupedNewLineCount++;
+    }else if(groupedNewLineCount > 0) {
+        groupedNewLineCount = 0;
+    }
+
 
     //Do the things which are only valid if they apear at the start of a line
     Symbol lineStart = lex(string);
+
+    if(lineStart.type == NONE) {
+        // Here we can just write the entire line with no more checks because there are no symbols on this row
+    }
     
     if(inList) {
         if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
