@@ -3,7 +3,7 @@
 #include "parserstringops.h"
 #include "stdvals.h"
 
-#define BUF_SIZE 800
+#define BUF_SIZE 2000
 #define END_OF_LINE_BUFFER_SIZE 50
 
 int parseLine(char* string, int stringLength, char* buf, int bufSize);
@@ -49,6 +49,13 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
             //writeStringToBuffer(string, buf, 5);
             //return;
         }
+    }
+
+    if(lineStart.type == HORIZONTAL_RULE && lineStart.loc < 2) {
+        writeStringToBuffer("\\hrulefill", buf, j);
+        j+= 10;
+        buf[j] = '\0';
+        return 0;
     }
 
     //Go deeper into the string looking for symbols
@@ -161,11 +168,6 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
             writeStringToBuffer("\\newpage ", buf, j);
             i += 3;
             j += 8;
-        } else if(s.type == HORIZONTAL_RULE) {
-            writeStringToBuffer("\\hrulefill", buf, j);
-            j+= 10;
-            buf[j] = '\0';
-            return 0;
         } else {
             buf[j] = string[i];
         }
@@ -189,10 +191,10 @@ int main ( int argc, char *argv[] )
             outFile = argv[++i];
         }
     }
-    if(outFile == NULL) {
+    /*if(outFile == NULL) {
         fprintf(stderr, "ERROR NO OUTPUT FILE SPECIFIED\n");
         return 0;
-    }
+    }*/
 
     //Use std in as a default
     FILE *fp = stdin;
@@ -204,7 +206,7 @@ int main ( int argc, char *argv[] )
         } //else leave as stout
     }
 
-    if(fp == NULL) fp = stdin;
+    if(fp == NULL)   fp = stdin;
     if(fout == NULL) fout = stdout;
 	    
     fprintf(fout, "\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");

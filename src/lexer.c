@@ -44,7 +44,7 @@ Symbol lex(char* string)
         } else if(isdigit(string[i])) {
             //Get the next non number digit
             int j=i;
-            while(isdigit(string[j]) j++;
+            while(isdigit(string[j])) j++;
             j++;
             if(string[j] == '.' || string[j] == ')') {
                 Symbol s = {i, ENUMERATE};

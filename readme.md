@@ -1,6 +1,5 @@
 #Markdown Latex
 
-
 Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used with a LaTeX compiler to create pretty documents
 
 ##Example running
