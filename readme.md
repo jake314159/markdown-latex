@@ -50,6 +50,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 ##Markdown syntax TODO
 + Lists with \*
 + Lists with multiple paragraphs
++ Nested lists
 + Strike through
 + Line breaks
 + Block quotes
@@ -63,7 +64,5 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Underlined headings with === and --- for H1 and H2
 
 ##TODO
-+ Take file names as parameters
-+ Include flags to change document formatting (eg. Font side or type of document)
 + Handle buffer overflows
 

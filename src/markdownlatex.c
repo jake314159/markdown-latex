@@ -25,22 +25,14 @@ int parseLine(char* string, int stringLength, FILE* out)
 {
     char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
     int endOfLineIndex = 0;
-    int j = 0;
     int i = 0;
 
-
-    //printf("Sring0(%d)\n", string[0]);
-    //printf("Sring1(%d)\n", string[1]);
     if(string[0] == '\n' || string[0] == '\0') {
         groupedNewLineCount++;
-        //printf("NEW line count is %d\n", groupedNewLineCount);
         if(!pageBreakPlaced && groupedNewLineCount >= 4) {
             fprintf(out, "\\newpage\n");
-            j += 8;
-            //buf[8] = '\0';
             pageBreakPlaced = TRUE;     
         }
-        //return 0;
     }else if(groupedNewLineCount > 0) {
         groupedNewLineCount = 0;
         pageBreakPlaced = FALSE;
@@ -57,21 +49,18 @@ int parseLine(char* string, int stringLength, FILE* out)
     if(inList) {
         if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
             fprintf(out, "\\item ");
-            j += 5;
             i++;
             //return TRUE;
         } else {
             //We just found the end of the list
             fprintf(out, "\\end{itemize}\n");
             inList = FALSE;
-            j += 14;
         }
     } else {
         //We aren't in a list but we just found a new one
         if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
             inList = TRUE;
             fprintf(out, "\\begin{itemize}\n\\item");//, buf, 0);
-            j += 21;
             i++;
             //writeStringToBuffer(string, buf, 5);
             //return;
@@ -81,14 +70,12 @@ int parseLine(char* string, int stringLength, FILE* out)
     if(inNumberList) {
         if(lineStart.type == ENUMERATE && lineStart.loc < 2) {
             fprintf(out, "\\item ");
-            j += 5;
             while(string[i] != ' ') i++;
             //return TRUE;
         } else {
             //We just found the end of the list
             fprintf(out, "\\end{enumerate}\n");
             inNumberList = FALSE;
-            j += 14;
         }
     } else {
         //We aren't in a list but we just found a new one
@@ -96,22 +83,16 @@ int parseLine(char* string, int stringLength, FILE* out)
             inNumberList = TRUE;
             fprintf(out, "\\begin{enumerate}\n\\item");//, buf, 0);
             while(string[i] != ' ') i++;
-            j += 21;
-            //i++;
-            //writeStringToBuffer(string, buf, 5);
-            //return;
         }
     }
 
     if(lineStart.type == HORIZONTAL_RULE && lineStart.loc < 2) {
         fprintf(out, "\\hrulefill");
-        j+= 10;
-        //buf[j] = '\0';
         return 0;
     }
 
     //Go deeper into the string looking for symbols
-    for(; i<stringLength; i++, j++) {
+    for(; i<stringLength; i++) {
 
         //Lex from the current character
         Symbol s = lex(string + i);
@@ -119,10 +100,8 @@ int parseLine(char* string, int stringLength, FILE* out)
 
         //Move up to next symbol the lexer 
         while( i < s.loc ) {
-            //buf[j] = string[i];
             putc(string[i], out);
             i++;
-            j++;
         }
 
         /////////////////////////////////////////////////////////////////
@@ -133,37 +112,29 @@ int parseLine(char* string, int stringLength, FILE* out)
                 fprintf(out, "\\end{lstlisting}");
                 isCode = FALSE;
                 i += 2;
-                j += 15;
             } else if(!isCode){
                 fprintf(out, "\\begin{lstlisting}[frame=single]");
                 isCode = TRUE;
                 i += 2;
-                j += 32;
                 break; //Skip the extra information about the syntax highlighting for now
             } else {  
                 //Note skip if not code formatting BUT is within a code block
                 putc(string[i], out);
             }
         } else if(s.type == ESCAPE) {
-            //buf[j] = string[i+1];
             putc(string[i+1], out);
             i += 1;
         } else if(s.type == H1) {
               //Section
             fprintf(out, "\\section*{");
-            j += 9; //length of the added string
-            
-            //endOfLineIndex += 8; //length of the added string
+
             writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line
            
-            
         } else if(s.type == H2) {
              //Subsection
             fprintf(out, "\\subsection*{");
-            j += 12; //length of the added string
             
-            //endOfLineIndex += 8; //length of the added string
             writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line
 
@@ -172,9 +143,7 @@ int parseLine(char* string, int stringLength, FILE* out)
         } else if(s.type == H3) {
              //Subsubsection
             fprintf(out, "\\subsubsection*{");
-            j += 15; //length of the added string
             
-            //endOfLineIndex += 8; //length of the added string
             writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line
 
@@ -186,43 +155,29 @@ int parseLine(char* string, int stringLength, FILE* out)
                 putc('}', out);
                 inBold = FALSE;
                 i += 1;
-                j += 0;
             } else {
                 fprintf(out, "\\textbf{");
                 inBold = TRUE;
                 i += 1;
-                j += 7;
             }   
         } else if(s.type == ITALIC) {
             //Bold text
             if(inItalic) {
                 putc('}', out);
                 inItalic = FALSE;
-                i += 0;
-                j += 0;
             } else {
                 fprintf(out, "\\textit{");
                 inItalic = TRUE;
-                i += 0;
-                j += 7;
             }   
         } else if(s.type == UNDERLINE) {
             //Bold text
             if(inUnderline) {
                 putc('}', out);
                 inUnderline = FALSE;
-                i += 0;
-                j += 0;
             } else {
                 fprintf(out, "\\underline{");
                 inUnderline = TRUE;
-                i += 0;
-                j += 10;
             }   
-        } else if(s.type == PAGE_BREAK) { 
-            fprintf(out, "\\newpage ");
-            i += 3;
-            j += 8;
         } else {
             putc(string[i], out);
         }
@@ -232,9 +187,7 @@ int parseLine(char* string, int stringLength, FILE* out)
     if(endOfLineIndex > 0) {
         endOfLineBuff[endOfLineIndex] = '\0';
         fprintf(out, "%s", endOfLineBuff);
-        j += endOfLineIndex;
     }
-    //buf[j] = '\0';
     return 0;
 }
 
@@ -259,9 +212,8 @@ int main ( int argc, char *argv[] )
         }
     }
 
-    //Use std in as a default
-    FILE *fp = stdin;
-    FILE *fout = stdout;
+    FILE *fp = NULL;
+    FILE *fout = NULL;
     if(argc > 1) {
         fp = fopen(argv[argc-1], "r"); // error check this!
         if(outFile != NULL) {
