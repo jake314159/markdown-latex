@@ -42,7 +42,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Italic
 + Underline
 + Code blocks
-+ Page break - not standard markdown but can be done with "\\newpage" (without the quotes)
++ Page break - not standard markdown but can be done with 4 or more empty lines
 + Horizontal rules (3 or more \* or \- (ignoring spaces))
 + Backslash escapes
 

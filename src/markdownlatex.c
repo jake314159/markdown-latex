@@ -15,6 +15,7 @@ char inBold = FALSE;
 char inItalic = FALSE;
 char inUnderline = FALSE;
 char isCode = FALSE;
+char pageBreakPlaced = FALSE;
 
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
@@ -26,10 +27,22 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
     int j = 0;
     int i = 0;
 
-    if(string[0] == '\n') {
+
+    //printf("Sring0(%d)\n", string[0]);
+    //printf("Sring1(%d)\n", string[1]);
+    if(string[0] == '\n' || string[0] == '\0') {
         groupedNewLineCount++;
+        //printf("NEW line count is %d\n", groupedNewLineCount);
+        if(!pageBreakPlaced && groupedNewLineCount >= 4) {
+            writeStringToBuffer("\\newpage\n", buf, 0);
+            j += 8;
+            //buf[8] = '\0';
+            pageBreakPlaced = TRUE;     
+        }
+        //return 0;
     }else if(groupedNewLineCount > 0) {
         groupedNewLineCount = 0;
+        pageBreakPlaced = FALSE;
     }
 
 
@@ -98,7 +111,8 @@ int parseLine(char* string, int stringLength, char* buf, int bufSize)
                 writeStringToBuffer("\\begin{lstlisting}[frame=single]", buf, j);
                 isCode = TRUE;
                 i += 2;
-                j += 31;
+                j += 32;
+                break; //Skip the extra information about the syntax highlighting for now
             } else {  
                 //Note skip if not code formatting BUT is within a code block
                 buf[j] = string[i];
