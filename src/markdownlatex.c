@@ -15,6 +15,7 @@ char inBold = FALSE;
 char inItalic = FALSE;
 char inUnderline = FALSE;
 char isCode = FALSE;
+char inNumberList = FALSE;
 char pageBreakPlaced = FALSE;
 
 //How many empty new lines have we seen in a row?
@@ -72,6 +73,31 @@ int parseLine(char* string, int stringLength, FILE* out)
             fprintf(out, "\\begin{itemize}\n\\item");//, buf, 0);
             j += 21;
             i++;
+            //writeStringToBuffer(string, buf, 5);
+            //return;
+        }
+    } 
+
+    if(inNumberList) {
+        if(lineStart.type == ENUMERATE && lineStart.loc < 2) {
+            fprintf(out, "\\item ");
+            j += 5;
+            while(string[i] != ' ') i++;
+            //return TRUE;
+        } else {
+            //We just found the end of the list
+            fprintf(out, "\\end{enumerate}\n");
+            inNumberList = FALSE;
+            j += 14;
+        }
+    } else {
+        //We aren't in a list but we just found a new one
+        if(lineStart.type == ENUMERATE && lineStart.loc < 2) {
+            inNumberList = TRUE;
+            fprintf(out, "\\begin{enumerate}\n\\item");//, buf, 0);
+            while(string[i] != ' ') i++;
+            j += 21;
+            //i++;
             //writeStringToBuffer(string, buf, 5);
             //return;
         }
@@ -240,12 +266,11 @@ int main ( int argc, char *argv[] )
 	    
     fprintf(fout, "\\documentclass[11pt,a4paper,oneside]{report}\n\\usepackage{listings}\n\\begin{document}\n\n");
     char buf[BUF_SIZE];
-    char buf2[BUF_SIZE];
     //printf("Hello world\n");
     
     while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
         parseLine(buf, getStringLength(buf), fout);
-        fprintf(fout, "%s\n", buf2);
+        putc('\n', fout);
     }
     fprintf(fout, "\\end{document}\n");
     return 0;

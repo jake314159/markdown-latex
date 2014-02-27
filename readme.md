@@ -37,7 +37,8 @@ make clean
 Not all markdown is supported (yet). Below is a list of the supported markdown syntax
 
 + Headers H1-H2 done with hashes
-+ Lists done with + operators
++ Lists done with + or - operators
++ Ordered lists done with + or - operators
 + Bold
 + Italic
 + Underline
@@ -48,7 +49,6 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 
 ##Markdown syntax TODO
 + Lists with \*
-+ Ordered lists
 + Lists with multiple paragraphs
 + Strike through
 + Line breaks
