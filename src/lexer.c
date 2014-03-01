@@ -1,5 +1,6 @@
 #include "lexer.h"
 #include <ctype.h>
+#include "stdvals.h"
 
 Symbol lex(char* string)
 {
@@ -50,7 +51,50 @@ Symbol lex(char* string)
                 Symbol s = {i, ENUMERATE};
                 return s; 
             } 
-        } 
+        } else if(string[i] == '|') {
+            int j = i+1;
+            if(string[i+1] == '\n'){
+                break;
+            } else if(string[i+2] != '-') {
+                while(string[j] != '\n' && string[j] != '|') j++;
+                if(string[j] == '|') {
+                    Symbol s = {i, TABLE_COL_SEP};
+                    return s;
+                } else {
+                    Symbol s = {i, NONE};
+                    return s;
+                }
+            }
+            char lColon = false;
+            char rColon = false;
+            
+            //printf("\nCheck left '%c%c%c'\n", string[j-1], string[j], string[j+1]);
+            if(string[j] == ':') {
+                lColon = true;
+                j+=2;
+            }
+
+            while(string[j] == '-') j++;
+
+            j--;
+            //printf("\nCheck right '%c%c%c'\n", string[j-1], string[j], string[j+1]);
+            if(string[j] == ':') {
+                rColon = true;
+            }
+            j+=2;
+            //if(string[j] != '|') break; //this is not a valid table
+
+            if(lColon && rColon) {
+                Symbol s = {j, TABLE_ROW_SEP_C};
+                return s;
+            } else if(rColon) {
+                Symbol s = {j, TABLE_ROW_SEP_R};
+                return s;
+            } else {
+                Symbol s = {j, TABLE_ROW_SEP_L};
+                return s;
+            }
+        }
         i++;
     }
     

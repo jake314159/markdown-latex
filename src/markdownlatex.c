@@ -21,6 +21,12 @@ char pageBreakPlaced = FALSE;
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
 
+char tableBuffer[BUF_SIZE]; 
+int tableBufferPos = 0;
+
+typedef enum {NO_TABLE, HEAD, SEP_START, SEP_INSIDE, BODY} TableState;
+TableState tableState = NO_TABLE;
+
 int parseLine(char* string, int stringLength, FILE* out)
 {
     char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
@@ -91,6 +97,29 @@ int parseLine(char* string, int stringLength, FILE* out)
         return 0;
     }
 
+    if(lineStart.type == TABLE_COL_SEP && tableState == NO_TABLE) {
+        //at start of a table
+        tableState = HEAD;
+    } else if(tableState != NO_TABLE) {
+        //We are within a table
+        if(tableState == HEAD) {
+            tableState = SEP_START;
+            fprintf(out, "\\begin{tabular}{ l ");  
+            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+            endOfLineIndex += 1; //length added to end of line    
+        } else if(tableState == SEP_START) {
+            tableState = BODY;
+
+        } else if(lineStart.type != TABLE_COL_SEP && lineStart.type != TABLE_ROW_SEP_L && lineStart.type != TABLE_ROW_SEP_C && 
+                    lineStart.type != TABLE_ROW_SEP_R) { 
+            fprintf(out, "\\end{tabular}");
+            tableState = NO_TABLE;
+        } else if (lineStart.type == TABLE_COL_SEP){
+            writeStringToBuffer("\\\\", endOfLineBuff, endOfLineIndex);
+            endOfLineIndex += 2; //length added to end of line
+        }
+    }
+
     //Go deeper into the string looking for symbols
     for(; i<stringLength; i++) {
 
@@ -98,10 +127,29 @@ int parseLine(char* string, int stringLength, FILE* out)
         Symbol s = lex(string + i);
         s.loc += i; //change loc to be in terms of string
 
-        //Move up to next symbol the lexer 
-        while( i < s.loc ) {
-            putc(string[i], out);
-            i++;
+        //Move up to next symbol the lexer
+        if(tableState == NO_TABLE || tableState == BODY) { 
+            while( i < s.loc ) {
+                putc(string[i], out);
+                i++;
+            }
+        } else if(tableState == HEAD) {
+            while( i < s.loc ) {
+                tableBuffer[tableBufferPos] = string[i];
+                tableBufferPos++;
+                i++;
+            }
+        } else if(tableState == SEP_START) {
+            if(s.type == TABLE_ROW_SEP_R) {
+                fprintf(out, " r ");
+            } else if(s.type == TABLE_ROW_SEP_C) {
+                fprintf(out, " c ");
+            } else{
+                fprintf(out, " l ");
+            }
+            while( i < s.loc ) i++;
+            i+=4;
+            continue;
         }
 
         /////////////////////////////////////////////////////////////////
@@ -124,7 +172,15 @@ int parseLine(char* string, int stringLength, FILE* out)
         } else if(s.type == ESCAPE) {
             putc(string[i+1], out);
             i += 1;
-        } else if(s.type == H1) {
+        } else if(s.type == TABLE_COL_SEP) {
+            if(tableState == HEAD) {
+                tableBuffer[tableBufferPos++] = ' ';
+                tableBuffer[tableBufferPos++] = '&';
+                tableBuffer[tableBufferPos++] = ' ';
+            } else if(lineStart.type == TABLE_COL_SEP){
+                fprintf(out, " & ");
+            }
+        }else if(s.type == H1) {
               //Section
             fprintf(out, "\\section*{");
 
@@ -183,10 +239,17 @@ int parseLine(char* string, int stringLength, FILE* out)
         }
     }
     
-    //Write anything which has been delayed till the end of line has been reached (eg. close any headings)
+    //Write anything which has been delayed till the end of line has been reached (eg. close any headings)    
     if(endOfLineIndex > 0) {
         endOfLineBuff[endOfLineIndex] = '\0';
         fprintf(out, "%s", endOfLineBuff);
+    }
+
+    if(tableState == SEP_START) {
+        tableState = BODY;
+        tableBuffer[tableBufferPos] = '\0';
+        fprintf(out, "\n%s\\\\", tableBuffer);
+        fprintf(out, "\n\\hline");
     }
     return 0;
 }
