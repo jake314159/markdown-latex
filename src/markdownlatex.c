@@ -24,7 +24,7 @@ int groupedNewLineCount = 0;
 char tableBuffer[BUF_SIZE]; 
 int tableBufferPos = 0;
 
-typedef enum {NO_TABLE, HEAD, SEP_START, SEP_INSIDE, BODY} TableState;
+typedef enum {NO_TABLE, HEAD, SEP_START, SEP_INSIDE, BODY_START, BODY_INSIDE} TableState;
 TableState tableState = NO_TABLE;
 
 int parseLine(char* string, int stringLength, FILE* out)
@@ -104,16 +104,21 @@ int parseLine(char* string, int stringLength, FILE* out)
         //We are within a table
         if(tableState == HEAD) {
             tableState = SEP_START;
-            fprintf(out, "\\begin{tabular}{ l ");  
+            fprintf(out, "\\begin{tabular}{ l");  
             writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 1; //length added to end of line    
-        } else if(tableState == SEP_START) {
-            tableState = BODY;
-
+        } else if(tableState == SEP_INSIDE) {
+            tableState = BODY_START;
         } else if(lineStart.type != TABLE_COL_SEP && lineStart.type != TABLE_ROW_SEP_L && lineStart.type != TABLE_ROW_SEP_C && 
                     lineStart.type != TABLE_ROW_SEP_R) { 
             fprintf(out, "\\end{tabular}");
             tableState = NO_TABLE;
+        } else if(tableState == BODY_INSIDE) {
+            tableState = BODY_START;
+            if(lineStart.type != NONE) {
+                writeStringToBuffer("\\\\", endOfLineBuff, endOfLineIndex);
+                endOfLineIndex += 2; //length added to end of line
+            }
         } else if (lineStart.type == TABLE_COL_SEP){
             writeStringToBuffer("\\\\", endOfLineBuff, endOfLineIndex);
             endOfLineIndex += 2; //length added to end of line
@@ -128,7 +133,7 @@ int parseLine(char* string, int stringLength, FILE* out)
         s.loc += i; //change loc to be in terms of string
 
         //Move up to next symbol the lexer
-        if(tableState == NO_TABLE || tableState == BODY) { 
+        if(tableState == NO_TABLE || tableState == BODY_START || tableState == BODY_INSIDE) { 
             while( i < s.loc ) {
                 putc(string[i], out);
                 i++;
@@ -139,7 +144,7 @@ int parseLine(char* string, int stringLength, FILE* out)
                 tableBufferPos++;
                 i++;
             }
-        } else if(tableState == SEP_START) {
+        } else if(tableState == SEP_INSIDE) {
             if(s.type == TABLE_ROW_SEP_R) {
                 fprintf(out, " r ");
             } else if(s.type == TABLE_ROW_SEP_C) {
@@ -147,6 +152,11 @@ int parseLine(char* string, int stringLength, FILE* out)
             } else{
                 fprintf(out, " l ");
             }
+            while( i < s.loc ) i++;
+            i+=4;
+            continue;
+        } else if(tableState == SEP_START) {
+            tableState = SEP_INSIDE;
             while( i < s.loc ) i++;
             i+=4;
             continue;
@@ -177,8 +187,11 @@ int parseLine(char* string, int stringLength, FILE* out)
                 tableBuffer[tableBufferPos++] = ' ';
                 tableBuffer[tableBufferPos++] = '&';
                 tableBuffer[tableBufferPos++] = ' ';
-            } else if(lineStart.type == TABLE_COL_SEP){
+            } else if(lineStart.type == TABLE_COL_SEP && tableState != BODY_START){
                 fprintf(out, " & ");
+            } else if(tableState == BODY_START) {
+                tableState = BODY_INSIDE;
+                while( i < s.loc ) i++;
             }
         }else if(s.type == H1) {
               //Section
@@ -245,10 +258,12 @@ int parseLine(char* string, int stringLength, FILE* out)
         fprintf(out, "%s", endOfLineBuff);
     }
 
-    if(tableState == SEP_START) {
-        tableState = BODY;
+    if(tableState == SEP_INSIDE) {
+        tableState = BODY_START;
         tableBuffer[tableBufferPos] = '\0';
-        fprintf(out, "\n%s\\\\", tableBuffer);
+        //+3 removes the first & from the line
+        //TODO get rid of this awful hack
+        fprintf(out, "\n%s\\\\", tableBuffer+3);
         fprintf(out, "\n\\hline");
     }
     return 0;
