@@ -50,7 +50,10 @@ Symbol lex(char* string)
                 Symbol s = {i, ENUMERATE};
                 return s; 
             } 
-        } 
+        } else if(string[i] == '|') {
+            Symbol s = {i, TABLE_COL_SEP};
+            return s;
+        }
         i++;
     }
     

@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include "lexer.h"
 #include "parserstringops.h"
+#include "tableProcessor.h"
 #include "stdvals.h"
 
 #define BUF_SIZE 2000
 #define END_OF_LINE_BUFFER_SIZE 50
 
-int parseLine(char* string, int stringLength, FILE* out);
+int parseLine(char* string, int stringLength, FILE* in, FILE* out);
 int getStringLength(char* string);
 
 //Are we are currently in a list?
@@ -21,7 +22,7 @@ char pageBreakPlaced = FALSE;
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
 
-int parseLine(char* string, int stringLength, FILE* out)
+int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 {
     char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
     int endOfLineIndex = 0;
@@ -88,6 +89,11 @@ int parseLine(char* string, int stringLength, FILE* out)
 
     if(lineStart.type == HORIZONTAL_RULE && lineStart.loc < 2) {
         fprintf(out, "\\hrulefill");
+        return 0;
+    }
+
+    if(lineStart.type == TABLE_COL_SEP) {
+        processTable(string, in, out);
         return 0;
     }
 
@@ -234,7 +240,7 @@ int main ( int argc, char *argv[] )
     //printf("Hello world\n");
     
     while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
-        parseLine(buf, getStringLength(buf), fout);
+        parseLine(buf, getStringLength(buf), fp, fout);
         putc('\n', fout);
     }
     fprintf(fout, "\\end{document}\n");
