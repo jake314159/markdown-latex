@@ -88,7 +88,23 @@ int processTable(char* line1, FILE* in, FILE* out)
         }
     }
 
-    fprintf(out, "\\begin{center}\n\\begin{tabularx}{\\linewidth}{ ");
+    //Do we need table x? (If there are any defaults then yes)
+    char tablex = false;
+    for(i=0; i<numberOfCols; i++) {
+        if(cols[i].align == DEFAULT) {
+            tablex = true;
+            break;
+        }
+    }
+
+    fprintf(out, "\\begin{center}\n\\rowcolors{3}{tableShade}{white}\n");
+    if(tablex) {
+        fprintf(out, "\\begin{tabularx}{\\linewidth}");
+    } else {
+        fprintf(out, "\\begin{tabular}");
+    }
+    fprintf(out, "{ ");
+
     for(i=0; i<numberOfCols; i++) {
         putc(toChar(cols[i].align), out);
         putc(' ', out);
@@ -96,7 +112,7 @@ int processTable(char* line1, FILE* in, FILE* out)
             putc('|', out); putc(' ', out);
         }
     }
-    fprintf(out, "}\n");
+    fprintf(out, "}\n\\hiderowcolors\n");
 
     int pos = 0;
     i = 0; //number of cols we have written
@@ -118,7 +134,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         }
     }
     
-    fprintf(out, "\\\\\n\\hline\n");
+    fprintf(out, "\\\\\n\\showrowcolors \n\\hline\n");
 
     //while the lines start with a '|'
     while((c=getc(in)) == '|') {
@@ -135,7 +151,12 @@ int processTable(char* line1, FILE* in, FILE* out)
         fprintf(out, "\\\\\n");
     }
 
-    fprintf(out, "\\end{tabularx}\n\\\n\\end{center}\n\\vspace{5mm}\n");
+    if(tablex) {
+        fprintf(out, "\\end{tabularx}");
+    } else {
+        fprintf(out, "\\end{tabular}");
+    }
+    fprintf(out, "\n\\\n\\end{center}\n\\vspace{5mm}\n");
 
     free(cols);
     return 0;

@@ -234,7 +234,7 @@ int main ( int argc, char *argv[] )
     if(marginSize == NULL)      marginSize = "1.5in";
     if(doucmentType == NULL)    doucmentType = "report";
     
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
                         fontSize, doucmentType, marginSize);
     char buf[BUF_SIZE];
     //printf("Hello world\n");
