@@ -10,6 +10,7 @@ int writeStringToBuffer(char* string, char* buf, int bufIndex);
 int getStringLength(char* string);
 
 int compare(char* string1, char* string2);
+int compareSub(char* string1, char* string2, int length);
 
 
 

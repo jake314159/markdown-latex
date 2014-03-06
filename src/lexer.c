@@ -10,6 +10,12 @@ Symbol lex(char* string)
         if(string[i] == '\\' && string[i+1] != '\\') {
             Symbol s = {i, ESCAPE};
             return s;
+        } else if( string[i] == '<' && string[i+1] == '!' && string[i+2] == '-' && string[i+3] == '-'  ) {
+            Symbol s = {i, COMMENT_OPEN};
+            return s;
+        } else if( string[i] == '-' && string[i+1] == '-' && string[i+2] == '>') {
+            Symbol s = {i, COMMENT_CLOSE};
+            return s;
         } else if( (string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') ||
                         (string[i] == '*' && string[i+1] == '*' && string[i+2] == '*') ) {
             Symbol s = {i, HORIZONTAL_RULE};

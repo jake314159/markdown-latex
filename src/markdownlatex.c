@@ -19,6 +19,11 @@ char isCode = FALSE;
 char inNumberList = FALSE;
 char pageBreakPlaced = FALSE;
 
+//Have we found some markdown (rather than a comment at the start of the page)
+char markdownStarted = FALSE;
+char inInitialCommentBlock = FALSE;
+char displayTitle = FALSE;
+
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
 
@@ -42,6 +47,49 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
     //Do the things which are only valid if they apear at the start of a line
     Symbol lineStart = lex(string);
+
+    if(lineStart.type == COMMENT_OPEN && !markdownStarted) {
+        inInitialCommentBlock = TRUE;
+        return 0;
+    } 
+    if(lineStart.type == COMMENT_CLOSE && inInitialCommentBlock) {
+        inInitialCommentBlock = FALSE;
+        if(displayTitle) {
+            fprintf(out, "\\\maketitle\\pagebreak");
+        }
+        return 0;
+    }
+    if(inInitialCommentBlock) {
+        //Processes the initial comment block which can contain information about things (eg. the cover page)
+        if(compareSub("title:", string, 6) == 0) {
+            fprintf(out, "\\title{");
+            int i=6; //start after the "title:"
+            while(string[i] != '\n' && string[i] != '\0') {
+                putc(string[i], out);
+                i++;
+            }
+            putc('}', out);
+            displayTitle = TRUE;
+        } else if(compareSub("author:", string, 7) == 0) {
+            fprintf(out, "\\author{");
+            int i=7; //start after the "title:"
+            while(string[i] != '\n' && string[i] != '\0') {
+                putc(string[i], out);
+                i++;
+            }
+            putc('}', out);
+        } else if(compareSub("date:", string, 5) == 0) {
+            fprintf(out, "\\date{");
+            int i=5; //start after the "title:"
+            while(string[i] != '\n' && string[i] != '\0') {
+                putc(string[i], out);
+                i++;
+            }
+            putc('}', out);
+        }
+        
+        return 0;
+    }
 
     if(lineStart.type == NONE) {
         // Here we can just write the entire line with no more checks because there are no symbols on this row

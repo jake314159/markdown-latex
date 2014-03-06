@@ -63,6 +63,24 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Code highlighting
 + Underlined headings with === and --- for H1 and H2
 
+##Non standard markdown
+
+In order to give more control over how the markdown is converted into tex there are some extra comments you can include. These comments will be ignored by a standard markdown parser but is used by markdownlatex to do something not supported with standard markdown syntax.
+
+###Cover page
+
+To add a cover page to your document you should include a comment right at the top of the document with information on what to display. For example:
+
+```
+<!--
+title:A quick example
+date:Today
+author:Jake
+-->
+```
+
+Please note that date and author are optional and that the comment block MUST be the first thing in the document otherwise it will be ignored.
+
 ##TODO
 + Handle buffer overflows
 
