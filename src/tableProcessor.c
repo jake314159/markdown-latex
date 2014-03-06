@@ -24,11 +24,13 @@ char toChar(alignment a)
     if(a == CENTER) return 'c';
     if(a == RIGHT)  return 'r';
     if(a == LEFT)   return 'l';
-    return 'l'; //default
+    return 'X'; //default
 }
 
 int processTable(char* line1, FILE* in, FILE* out) 
 {
+    numberOfCols = 0;
+    cols = NULL;
     int i=0;
     while(line1[i] != '\0' && line1[i] != '\n') {
         if(line1[i] == '|') {
@@ -86,7 +88,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         }
     }
 
-    fprintf(out, "\\begin{tabular}{ ");
+    fprintf(out, "\\begin{center}\n\\begin{tabularx}{\\linewidth}{ ");
     for(i=0; i<numberOfCols; i++) {
         putc(toChar(cols[i].align), out);
         putc(' ', out);
@@ -96,16 +98,25 @@ int processTable(char* line1, FILE* in, FILE* out)
     }
     fprintf(out, "}\n");
 
-    i = -1; //number of cols we have written
-    do {
-        c = getc(in);
+    int pos = 0;
+    i = 0; //number of cols we have written
+    c = line1[pos];
+    pos++;
+    while(c != '\n' && c != '\0') {
+        c = line1[pos];
+        pos++;
+        if(c == '\0') break;
         if(c == '|') {
-            if(i != -1 && i != numberOfCols-1) putc('&', out);
+            if(i != numberOfCols-1) {
+                putc(' ', out);
+                putc('&', out);
+                putc(' ', out);
+            }
             i++;
         } else if (c != '\n'){
             putc(c, out);
         }
-    } while(c != '\n');
+    }
     
     fprintf(out, "\\\\\n\\hline\n");
 
@@ -124,7 +135,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         fprintf(out, "\\\\\n");
     }
 
-    fprintf(out, "\\end{tabular}\n\\vspace{5mm}\n");
+    fprintf(out, "\\end{tabularx}\n\\\n\\end{center}\n\\vspace{5mm}\n");
 
     free(cols);
     return 0;
