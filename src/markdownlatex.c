@@ -1,14 +1,25 @@
 #include <stdio.h>
+#include <stdlib.h> 
 #include "lexer.h"
 #include "parserstringops.h"
 #include "tableProcessor.h"
 #include "stdvals.h"
 
-#define BUF_SIZE 2000
+#define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
 
 int parseLine(char* string, int stringLength, FILE* in, FILE* out);
 int getStringLength(char* string);
+
+
+int bufferSize = BUF_SIZE;
+
+// Note that endOfLineBuff overflows are handled by ignoring any future additions to the buffer
+// This will cause errors but to keep the code a bit easier to read we are just going to give it a
+// Large enough size so under normal operation there will be enough space
+// The only way to cause this to happen is to have over 50 headers within headers which isn't even
+// Valid in markdown and even if they do it will simply generate a bad tex file and not break anything
+char endOfLineBuff[END_OF_LINE_BUFFER_SIZE];
 
 //Are we are currently in a list?
 char inList = FALSE;
@@ -27,9 +38,14 @@ char displayTitle = FALSE;
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
 
+void outOfMemoryError()
+{
+    fprintf(stderr, "Out of memory\nUnable to continue\n");
+    exit(100);
+}
+
 int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 {
-    char endOfLineBuff[END_OF_LINE_BUFFER_SIZE]; //TODO move out of here
     int endOfLineIndex = 0;
     int i = 0;
 
@@ -55,10 +71,13 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     if(lineStart.type == COMMENT_CLOSE && inInitialCommentBlock) {
         inInitialCommentBlock = FALSE;
         if(displayTitle) {
-            fprintf(out, "\\\maketitle\\pagebreak");
+            fprintf(out, "\\maketitle\\pagebreak");
         }
         return 0;
+    } else if(!markdownStarted) {
+        markdownStarted = TRUE;
     }
+    
     if(inInitialCommentBlock) {
         //Processes the initial comment block which can contain information about things (eg. the cover page)
         if(compareSub("title:", string, 6) == 0) {
@@ -182,15 +201,19 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
               //Section
             fprintf(out, "\\section*{");
 
-            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-            endOfLineIndex += 1; //length added to end of line
+            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                endOfLineIndex += 1; //length added to end of line
+            }
            
         } else if(s.type == H2) {
              //Subsection
             fprintf(out, "\\subsection*{");
             
-            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-            endOfLineIndex += 1; //length added to end of line
+            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                endOfLineIndex += 1; //length added to end of line
+            }
 
             i += 1; //Go past the extra character we looked fowards too
             
@@ -198,8 +221,10 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
              //Subsubsection
             fprintf(out, "\\subsubsection*{");
             
-            writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-            endOfLineIndex += 1; //length added to end of line
+            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                endOfLineIndex += 1; //length added to end of line
+            }
 
             i += 2; //Go past the extra characters we looked fowards too
             
@@ -284,13 +309,40 @@ int main ( int argc, char *argv[] )
     
     fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
                         fontSize, doucmentType, marginSize);
-    char buf[BUF_SIZE];
-    //printf("Hello world\n");
-    
-    while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
-        parseLine(buf, getStringLength(buf), fp, fout);
-        putc('\n', fout);
+    char* buf = malloc(bufferSize * sizeof(char));
+    if(buf == NULL) {
+        outOfMemoryError();
     }
-    fprintf(fout, "\\end{document}\n");
+    
+    int getLineReturnCode = getLineFile(buf, bufferSize, fp);
+    while( getLineReturnCode > 0 ) {
+        //If we have a buffer overflow
+        if(getLineReturnCode == 2) {
+            //Double buffer size in event of buffer overflow
+            buf = (char*)realloc(buf, (bufferSize * sizeof(char) * 2));
+            if(buf == NULL) {
+                outOfMemoryError();
+            }
+            int oldSize = bufferSize;
+            bufferSize *= 2;
+            //Try to read off the rest of the line
+            //Note the -1 is to ignore the \0 added by getLineFile();
+            getLineReturnCode = getLineFile(buf+oldSize-1, oldSize+1, fp);
+        } else {
+            parseLine(buf, getStringLength(buf), fp, fout);
+            putc('\n', fout);
+            getLineReturnCode = getLineFile(buf, bufferSize, fp);
+        }
+    }
+    fprintf(fout, "\\end{document}\n\n\n");
+    fprintf(fout, "%%\n");
+    fprintf(fout, "%%     COMPILED WITH MARKDOWN LATEX\n");
+    fprintf(fout, "%%\n");
+    fprintf(fout, "%%     https://github.com/jake314159/markdown-latex\n");
+    fprintf(fout, "%%\n");
+    fprintf(fout, "%%\n");
+    fprintf(fout, "%%     Compile notes: (buf=%dBto%dB,margin=%s,doc=%s)\n", BUF_SIZE, bufferSize, marginSize,doucmentType);
+    fprintf(fout, "%%\n\n\n");
+    free(buf);
     return 0;
 }

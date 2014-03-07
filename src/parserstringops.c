@@ -22,12 +22,23 @@ int getLine(char* buf, int length)
     return TRUE;
 }
 
+// 1 == all good
+// 2 == buffer full
+// 0 == end of file
 int getLineFile(char* buf, int length, FILE* file)
 {
     int i = 0;
     char c = 0;
     
     do {
+
+        if(i >= length-1) {
+            //Buffer too small!
+            //Add a null character just incase the user doesn't check and tries to print it
+            buf[i] = '\0';
+            return 2;
+        }
+
         c = getc(file);
         if(c == EOF) {
             return FALSE;
@@ -38,8 +49,8 @@ int getLineFile(char* buf, int length, FILE* file)
             buf[i] = c;
         }
         i++;
-    } while(c != '\n' && i < length);
-    return TRUE;
+    } while(c != '\n');
+    return i;
 }
 
 int writeStringToBuffer(char* string, char* buf, int bufIndex) {
