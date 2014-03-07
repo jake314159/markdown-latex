@@ -26,6 +26,7 @@ char inList = FALSE;
 char inBold = FALSE;
 char inItalic = FALSE;
 char inUnderline = FALSE;
+char inStrikethrough = FALSE;
 char isCode = FALSE;
 char inNumberList = FALSE;
 char pageBreakPlaced = FALSE;
@@ -241,6 +242,17 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 inBold = TRUE;
                 i += 1;
             }   
+        } else if(s.type == STRIKETHROUGH) {
+            //Bold text
+            if(inStrikethrough) {
+                putc('}', out);
+                inStrikethrough = FALSE;
+                i += 1;
+            } else {
+                fprintf(out, "\\sout{");
+                inStrikethrough = TRUE;
+                i += 1;
+            }   
         } else if(s.type == ITALIC) {
             //Bold text
             if(inItalic) {
@@ -309,7 +321,7 @@ int main ( int argc, char *argv[] )
     if(marginSize == NULL)      marginSize = "1.5in";
     if(doucmentType == NULL)    doucmentType = "report";
     
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n\\begin{document}\n\n\n",
                         fontSize, doucmentType, marginSize);
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {

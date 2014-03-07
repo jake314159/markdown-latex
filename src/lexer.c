@@ -38,6 +38,9 @@ Symbol lex(char* string)
         } else if( string[i] == '*' && string[i+1] == '*' ) {
             Symbol s = {i, BOLD};
             return s;
+        } else if( string[i] == '~' && string[i+1] == '~' ) {
+            Symbol s = {i, STRIKETHROUGH};
+            return s;
         } else if( string[i] == '+' || string[i] == '-' ) {
             Symbol s = {i, ITEMIZE};
             return s;
