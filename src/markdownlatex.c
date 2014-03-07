@@ -1,14 +1,18 @@
 #include <stdio.h>
+#include <stdlib.h> 
 #include "lexer.h"
 #include "parserstringops.h"
 #include "tableProcessor.h"
 #include "stdvals.h"
 
-#define BUF_SIZE 2000
+#define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
 
 int parseLine(char* string, int stringLength, FILE* in, FILE* out);
 int getStringLength(char* string);
+
+
+int bufferSize = BUF_SIZE;
 
 //Are we are currently in a list?
 char inList = FALSE;
@@ -58,7 +62,10 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             fprintf(out, "\\\maketitle\\pagebreak");
         }
         return 0;
+    } else if(!markdownStarted) {
+        markdownStarted = TRUE;
     }
+    
     if(inInitialCommentBlock) {
         //Processes the initial comment block which can contain information about things (eg. the cover page)
         if(compareSub("title:", string, 6) == 0) {
@@ -284,13 +291,34 @@ int main ( int argc, char *argv[] )
     
     fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\begin{document}\n\n\n",
                         fontSize, doucmentType, marginSize);
-    char buf[BUF_SIZE];
+    char* buf = malloc(bufferSize * sizeof(char));
     //printf("Hello world\n");
     
-    while( getLineFile(buf, BUF_SIZE, fp) > 0 ) {
-        parseLine(buf, getStringLength(buf), fp, fout);
-        putc('\n', fout);
+    int getLineReturnCode = getLineFile(buf, bufferSize, fp);
+    while( getLineReturnCode > 0 ) {
+        //If we have a buffer overflow
+        if(getLineReturnCode == 2) {
+            //Double buffer size in event of buffer overflow
+            buf = (char*)realloc(buf, (bufferSize * sizeof(char) * 2));
+            int oldSize = bufferSize;
+            bufferSize *= 2;
+            //Try to read off the rest of the line
+            getLineReturnCode = getLineFile(buf+oldSize-1, oldSize, fp);
+        } else {
+            parseLine(buf, getStringLength(buf), fp, fout);
+            putc('\n', fout);
+            getLineReturnCode = getLineFile(buf, bufferSize, fp);
+        }
     }
-    fprintf(fout, "\\end{document}\n");
+    fprintf(fout, "\\end{document}\n\n\n");
+    fprintf(fout, "%%\n", bufferSize);
+    fprintf(fout, "%%     COMPILED WITH MARKDOWN LATEX\n", bufferSize);
+    fprintf(fout, "%%\n", bufferSize);
+    fprintf(fout, "%%     https://github.com/jake314159/markdown-latex\n", bufferSize);
+    fprintf(fout, "%%\n", bufferSize);
+    fprintf(fout, "%%\n", bufferSize);
+    fprintf(fout, "%%     Compile notes: (buf=%dBto%dB,margin=%s,doc=%s)\n", BUF_SIZE, bufferSize, marginSize,doucmentType);
+    fprintf(fout, "%%\n\n\n", bufferSize);
+    free(buf);
     return 0;
 }
