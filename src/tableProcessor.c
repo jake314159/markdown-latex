@@ -4,10 +4,6 @@
 #include "stdvals.h"
 #include <stdlib.h>
 
-#define BUF_SIZE 2000
-
-char buf[BUF_SIZE];
-
 typedef enum {DEFAULT, LEFT, RIGHT, CENTER} alignment;
 
 typedef struct Col {
