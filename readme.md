@@ -47,13 +47,13 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Horizontal rules (3 or more \* or \- (ignoring spaces))
 + Backslash escapes
 + Tables (Markdown within tables however is not currently supported)
++ Line breaks
 
 ##Markdown syntax TODO
 + Lists with \*
 + Lists with multiple paragraphs
 + Nested lists
 + Strike through
-+ Line breaks
 + Block quotes
 + Nested block quotes
 + Images

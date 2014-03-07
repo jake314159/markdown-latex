@@ -228,6 +228,8 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
             i += 2; //Go past the extra characters we looked fowards too
             
+        } else if(s.type == LINE_BREAK) {
+            fprintf(out, "\n\\vspace{2mm}");
         } else if(s.type == BOLD) {
             //Bold text
             if(inBold) {

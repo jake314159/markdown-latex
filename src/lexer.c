@@ -10,6 +10,9 @@ Symbol lex(char* string)
         if(string[i] == '\\' && string[i+1] != '\\') {
             Symbol s = {i, ESCAPE};
             return s;
+        } else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\0') {
+            Symbol s = {i, LINE_BREAK};
+            return s;
         } else if( string[i] == '<' && string[i+1] == '!' && string[i+2] == '-' && string[i+3] == '-'  ) {
             Symbol s = {i, COMMENT_OPEN};
             return s;
@@ -43,9 +46,6 @@ Symbol lex(char* string)
             return s;
         } else if(string[i] == '`' && string[i+1] == '`' && string[i+2] == '`') {
             Symbol s = {i, CODE};
-            return s;
-        }  else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\n') {
-            Symbol s = {i, LINE_BREAK};
             return s;
         } else if(isdigit(string[i])) {
             //Get the next non number digit
