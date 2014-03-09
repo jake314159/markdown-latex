@@ -43,7 +43,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Italic
 + Underline
 + Strike through
-+ Code blocks
++ Code blocks & syntax highlighting
 + Page break - not standard markdown but can be done with 4 or more empty lines
 + Horizontal rules (3 or more \* or \- (ignoring spaces))
 + Backslash escapes
@@ -60,14 +60,13 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Links
 + Symbols
 + Math
-+ Code highlighting
 + Underlined headings with === and --- for H1 and H2
 
 ##Required tex packages
 
 Currently markdownlatex imports all the required tex packages even if they aren't used in the document. You can manually remove the unused packages from the tex file as a temporary solution until markdownlatex is designed to only include the packages needed. Below is a list of packages which will be included (and what they are used for).
 
-+ *listings* (used to increase the number of font size options)
++ *listings* (For code blocks)
 + *tabularx* (used for tables)
 + *xcolor* (used for shading every other table row
 + *tableShade* (used for shading every other table row)

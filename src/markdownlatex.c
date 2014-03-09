@@ -366,7 +366,7 @@ int main ( int argc, char *argv[] )
                         fontSize, doucmentType, marginSize);
 
 
-    fprintf(fout, "%s", colorData);
+    fprintf(fout, "%s\n", colorData);
 
     fprintf(fout, "\\begin{document}\n\n\n");
     char* buf = malloc(bufferSize * sizeof(char));
