@@ -18,22 +18,19 @@ parserstringops.o: src/parserstringops.c
 
 tableProcessor.o: src/tableProcessor.c
 	$(CC) -std=c99 -Wall -c src/tableProcessor.c -o bin/tableProcessor.o
-   
-
-test_stringops.o: tests/test_stringops.h
-	$(CC) -std=c99 -Wall -c tests/test_stringops.h -o testbin/test_stringops.o
 
 tester.o: tests/tester.c
 	$(CC) -std=c99 -Wall -c tests/tester.c -o testbin/tester.o
  
 clean:
+	rm -fr testbin/*.o
 	rm -fr bin/*.o
 
 install:
 	cp bin/markdownlatex $(USR_BIN)/markdownlatex
 
-tester: main tester.o test_stringops.o
-	$(CC) testbin/tester.o bin/parserstringops.o -o testbin/tester
+tester: main tester.o
+	$(CC) testbin/tester.o bin/parserstringops.o bin/lexer.o -o testbin/tester
 	./testbin/tester
 
 
