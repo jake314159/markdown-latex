@@ -119,9 +119,9 @@ int compareSub(char* string1, char* string2, int length)
             } else {
                 return -1;
             }
-            if( i >= length) {
-                return 0;
-            }
+        }
+        if( i >= length-1) {
+            return 0;
         }
         i++;
     }
