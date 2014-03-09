@@ -26,6 +26,10 @@
 #include "tableProcessor.h"
 #include "stdvals.h"
 
+const char* colorData =
+#include "colorData.txt"
+    ;
+
 #define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
 
@@ -208,9 +212,17 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 isCode = FALSE;
                 i += 2;
             } else if(!isCode){
-                fprintf(out, "\\begin{lstlisting}[frame=single]");
+                char bufCode[10];
+                int iC = 3;
+                while(string[iC] != '\0' && string[iC] != '\n' && string[iC] != ' ' && iC<10) {
+                    bufCode[iC-3] = string[iC];
+                    iC++;
+                }
+                bufCode[iC-3] = '\0';
+                fprintf(out, "\\begin{lstlisting}[frame=single,language=%s]", bufCode);
                 isCode = TRUE;
-                i += 2;
+                i += 3;
+                i += iC;
                 break; //Skip the extra information about the syntax highlighting for now
             } else {  
                 //Note skip if not code formatting BUT is within a code block
@@ -350,8 +362,13 @@ int main ( int argc, char *argv[] )
     if(marginSize == NULL)      marginSize = "1.5in";
     if(doucmentType == NULL)    doucmentType = "report";
     
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n\\begin{document}\n\n\n",
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
                         fontSize, doucmentType, marginSize);
+
+
+    fprintf(fout, "%s\n", colorData);
+
+    fprintf(fout, "\\begin{document}\n\n\n");
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
         outOfMemoryError();
