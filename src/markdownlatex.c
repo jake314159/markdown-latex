@@ -292,6 +292,14 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 fprintf(out, "\\underline{");
                 inUnderline = TRUE;
             }   
+        } else if(s.type == QUOTE_LEFT) {
+            //add the character before but replace the " with ``
+            fprintf(out, "``");
+            //i++;
+        } else if(s.type == QUOTE_RIGHT) {
+            //add the character before but replace the " with ''
+            fprintf(out, "''");
+            //i++;
         } else {
             putc(string[i], out);
         }

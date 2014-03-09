@@ -83,7 +83,15 @@ Symbol lex(char* string)
         } else if(string[i] == '|') {
             Symbol s = {i, TABLE_COL_SEP};
             return s;
-        }
+        } else if (string[i+1] == '"') { 
+            if(string[i] == ' ') {
+                Symbol s = {i+1, QUOTE_LEFT};
+                return s;
+            } else {
+                Symbol s = {i+1, QUOTE_RIGHT};
+                return s;
+            }
+        } 
         i++;
     }
     
