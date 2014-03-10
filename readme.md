@@ -51,6 +51,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Backslash escapes
 + Tables (Markdown within tables however is not currently supported)
 + Line breaks
++ Links
 
 ##Markdown syntax TODO
 + Lists with \*
@@ -59,7 +60,6 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Block quotes
 + Nested block quotes
 + Images
-+ Links
 + Symbols
 + Math
 + Underlined headings with === and --- for H1 and H2

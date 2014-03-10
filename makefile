@@ -4,22 +4,28 @@ USR_BIN = /usr/bin
 all: main
 test: tester
 
-main: markdownlatex.o lexer.o parserstringops.o tableProcessor.o
+main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o
 	$(CC) bin/markdownlatex.o bin/lexer.o bin/parserstringops.o bin/tableProcessor.o -std=c99 -Wall -o bin/markdownlatex
 
-markdownlatex.o: src/markdownlatex.c
+markdownlatex.o: src/markdownlatex.c bindir
 	$(CC) -std=c99 -Wall -c src/markdownlatex.c -o bin/markdownlatex.o
 
-lexer.o: src/lexer.c
+lexer.o: src/lexer.c bindir
 	$(CC) -std=c99 -Wall -c src/lexer.c -o bin/lexer.o
 
-parserstringops.o: src/parserstringops.c
+parserstringops.o: src/parserstringops.c bindir
 	$(CC) -std=c99 -Wall -c src/parserstringops.c -o bin/parserstringops.o
 
-tableProcessor.o: src/tableProcessor.c
+tableProcessor.o: src/tableProcessor.c bindir
 	$(CC) -std=c99 -Wall -c src/tableProcessor.c -o bin/tableProcessor.o
 
-tester.o: tests/tester.c
+bindir:
+	mkdir -p bin
+
+testbindir:
+	mkdir -p testbin
+
+tester.o: testbindir tests/tester.c
 	$(CC) -std=c99 -Wall -c tests/tester.c -o testbin/tester.o
  
 clean:
@@ -29,7 +35,7 @@ clean:
 install:
 	cp bin/markdownlatex $(USR_BIN)/markdownlatex
 
-tester: main tester.o
+tester: main tester.o testbindir
 	$(CC) testbin/tester.o bin/parserstringops.o bin/lexer.o -o testbin/tester
 	./testbin/tester
 
