@@ -1,6 +1,8 @@
 #Markdown Latex
 
-Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used with a LaTeX compiler to create pretty documents
+Converts a markdown (.md) file into a LaTeX (.tex) file which can then be used with a LaTeX compiler to create pretty documents.  
+
+Currently being developed on *Ubuntu 12.04 LTS* but wider support will be brought with the first offical release. For the time being feel free to try it on your machine and post any problems on the issues tab and even if it works tell me so I can add your setup as being offically supported.  
 
 ##Example running
 
@@ -10,19 +12,13 @@ Once compiled (see compile section) the code can be run as followed
 markdownlatex -o output_tex.tex input_markdown.md
 ```
 
-It can also be run with this command
-
-```bash
-markdownlatex example.md > output.tex
-```
-
-It can also be run with the command
+It can also be run using standard input and output with the command
 
 ```bash
 markdownlatex < example.md > output.tex
 ```
 
-##Compile
+##Compile & install
 
 The file can be compiled with the following commands
 
@@ -30,6 +26,12 @@ The file can be compiled with the following commands
 cd markdownlatex
 make
 make clean
+```
+
+Once compiled it can then be installed (only tested on Linux) with the following command
+
+```bash
+make install
 ```
 
 ##Supported markdown
