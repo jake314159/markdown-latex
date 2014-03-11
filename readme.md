@@ -52,13 +52,12 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Tables (Markdown within tables however is not currently supported)
 + Line breaks
 + Links
++ Block quotes
 
 ##Markdown syntax TODO
 + Lists with \*
 + Lists with multiple paragraphs
 + Nested lists
-+ Block quotes
-+ Nested block quotes
 + Images
 + Symbols
 + Math
