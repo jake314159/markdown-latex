@@ -26,9 +26,7 @@
 #include "tableProcessor.h"
 #include "stdvals.h"
 
-const char* colorData =
-#include "colorData.txt"
-    ;
+#define VERSION "v0.9 (beta)"
 
 #define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
@@ -36,6 +34,9 @@ const char* colorData =
 int parseLine(char* string, int stringLength, FILE* in, FILE* out);
 int getStringLength(char* string);
 
+const char* colorData =
+#include "colorData.txt"
+    ;
 
 int bufferSize = BUF_SIZE;
 
@@ -336,7 +337,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 j++;
             }
 
-            fprintf(out, "}{%s}\n", namebuf);
+            fprintf(out, "}{%s} ", namebuf);
 
             free(namebuf);
             i += j;
@@ -372,6 +373,11 @@ int main ( int argc, char *argv[] )
         } else if(argv[i][0] == '-' && argv[i][1] == 'm') {
             marginSize = argv[++i];
         }
+    }
+
+    if (argv[argc-1][0] == '-' && argv[argc-1][1] == 'v') {
+        printf("------------------------------\n  markdownlatex\n  Version: %s\n------------------------------\n", VERSION);
+        return 0;
     }
 
     FILE *fp = NULL;
@@ -425,11 +431,12 @@ int main ( int argc, char *argv[] )
     fprintf(fout, "\\end{document}\n\n\n");
     fprintf(fout, "%%\n");
     fprintf(fout, "%%     COMPILED WITH MARKDOWN LATEX\n");
+    fprintf(fout, "%%     %s\n", VERSION);
     fprintf(fout, "%%\n");
     fprintf(fout, "%%     https://github.com/jake314159/markdown-latex\n");
     fprintf(fout, "%%\n");
     fprintf(fout, "%%\n");
-    fprintf(fout, "%%     Compile notes: (buf=%dBto%dB,margin=%s,doc=%s)\n", BUF_SIZE, bufferSize, marginSize,doucmentType);
+    fprintf(fout, "%%     Compile notes: (v='%s',buf=%dBto%dB,margin=%s,doc=%s)\n", VERSION, BUF_SIZE, bufferSize, marginSize,doucmentType);
     fprintf(fout, "%%\n\n\n");
     free(buf);
     return 0;
