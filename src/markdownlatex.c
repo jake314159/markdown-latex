@@ -25,8 +25,7 @@
 #include "parserstringops.h"
 #include "tableProcessor.h"
 #include "stdvals.h"
-
-#define VERSION "v0.9 (beta)"
+#include "versionData.h"
 
 #define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
@@ -436,7 +435,7 @@ int main ( int argc, char *argv[] )
     fprintf(fout, "%%     https://github.com/jake314159/markdown-latex\n");
     fprintf(fout, "%%\n");
     fprintf(fout, "%%\n");
-    fprintf(fout, "%%     Compile notes: (v='%s',buf=%dBto%dB,margin=%s,doc=%s)\n", VERSION, BUF_SIZE, bufferSize, marginSize,doucmentType);
+    fprintf(fout, "%%     Compile notes: (v=%d.%d.%d,buf=%dBto%dB,margin=%s,doc=%s)\n", V_MAJOR, V_MINOR, V_PATCH, BUF_SIZE, bufferSize, marginSize,doucmentType);
     fprintf(fout, "%%\n\n\n");
     free(buf);
     return 0;
