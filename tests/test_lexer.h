@@ -161,6 +161,12 @@ static char* test_LINK() {
    return 0;
 }
 
+static char* test_QUOTE_BLOCK() {
+    Symbol s = lex(" > Some text!");
+    mu_assert("Lexer comment close token", s.type==QUOTE_BLOCK && s.loc==1);
+    return 0;
+}
+
 static char* all_lexer_tests() {
     mu_run_test(test_NONE);
     mu_run_test(test_BOLD);
@@ -184,6 +190,7 @@ static char* all_lexer_tests() {
     mu_run_test(test_QUOTE_LEFT);
     mu_run_test(test_QUOTE_RIGHT);
     mu_run_test(test_LINK);
+    mu_run_test(test_QUOTE_BLOCK);
 
     return 0;
 }

@@ -31,6 +31,9 @@ Symbol lex(char* string)
         if(string[i] == '\\' && string[i+1] != '\\') {
             Symbol s = {i, ESCAPE};
             return s;
+        } else if(string[i]=='>') {
+            Symbol s = {i, QUOTE_BLOCK};
+            return s;
         } else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\0') {
             Symbol s = {i, LINE_BREAK};
             return s;
