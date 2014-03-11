@@ -56,6 +56,8 @@ char isCode = FALSE;
 char inNumberList = FALSE;
 char pageBreakPlaced = FALSE;
 
+int quoteBlockDepth = 0;
+
 //Have we found some markdown (rather than a comment at the start of the page)
 char markdownStarted = FALSE;
 char inInitialCommentBlock = FALSE;
@@ -138,6 +140,41 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
     if(lineStart.type == NONE) {
         // Here we can just write the entire line with no more checks because there are no symbols on this row
+    }
+
+
+    if(lineStart.type == QUOTE_BLOCK && !isCode) {
+        int qC = 1; 
+        int j = lineStart.loc+1;
+        Symbol s = lex(string+1);
+        
+        while(s.type == QUOTE_BLOCK) {
+            //fprintf(out, "%% qc= %d, quoteBlockDepth=%d, j=%d\n", qC, quoteBlockDepth, j);
+            qC++;
+            j += s.loc+1;
+            s = lex(string+j);
+        }
+        //fprintf(out, "%% qc= %d, quoteBlockDepth=%d\n", qC, quoteBlockDepth);
+        i = j;
+        if(qC > quoteBlockDepth) {
+            //we have just gone into a block
+            for(int k=qC; k>quoteBlockDepth; k--) {
+                fprintf(out, "\n\\begin{quote}\n");
+            }
+            quoteBlockDepth = qC;
+        } else if(qC < quoteBlockDepth) {
+            //we have just gone into a block
+            for(int k=qC; k<quoteBlockDepth; k++) {
+                fprintf(out, "\n\\end{quote}\n");
+            }
+            quoteBlockDepth = qC;
+        }
+        //return 0;
+    } else if(quoteBlockDepth > 0 && string[0] != '\0') {
+        for(int k=0; k<quoteBlockDepth; k++) {
+            fprintf(out, "\n\\end{quote}\n");
+        }
+        quoteBlockDepth = 0;
     }
     
     if(inList) {
