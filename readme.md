@@ -38,7 +38,7 @@ make install
 
 Not all markdown is supported (yet). Below is a list of the supported markdown syntax
 
-+ Headers H1-H2 done with hashes
++ Headers H1-H3 done with hashes
 + Lists done with + or - operators
 + Ordered lists done with + or - operators
 + Bold
@@ -62,6 +62,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Symbols
 + Math
 + Underlined headings with === and --- for H1 and H2
++ Images from a url
 
 ##Required tex packages
 
@@ -73,6 +74,7 @@ Currently markdownlatex imports all the required tex packages even if they aren'
 + *tableShade* (used for shading every other table row)
 + *geometry* (used for selecting custom margin sizes (can't be removed))
 + *ulem* (used for strikethroughs)
++ *graphicx* (used for images)
 
 ##Non standard markdown
 
