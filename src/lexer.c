@@ -86,6 +86,9 @@ Symbol lex(char* string)
         } else if(string[i] == '|') {
             Symbol s = {i, TABLE_COL_SEP};
             return s;
+        } else if(string[i] == '!' && string[i+1]=='[') {
+            Symbol s = {i, IMAGE};
+            return s;
         } else if(string[i] == '[') {
             Symbol s = {i, LINK};
             return s;

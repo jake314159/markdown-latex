@@ -53,12 +53,12 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Line breaks
 + Links
 + Block quotes
++ Images
 
 ##Markdown syntax TODO
 + Lists with \*
 + Lists with multiple paragraphs
 + Nested lists
-+ Images
 + Symbols
 + Math
 + Underlined headings with === and --- for H1 and H2

@@ -167,6 +167,12 @@ static char* test_QUOTE_BLOCK() {
     return 0;
 }
 
+static char* test_IMAGE() {
+    Symbol s = lex(" ![alt](http://image.jpg)");
+    mu_assert("Lexer comment close token", s.type==IMAGE && s.loc==1);
+    return 0;
+}
+
 static char* all_lexer_tests() {
     mu_run_test(test_NONE);
     mu_run_test(test_BOLD);
@@ -191,6 +197,7 @@ static char* all_lexer_tests() {
     mu_run_test(test_QUOTE_RIGHT);
     mu_run_test(test_LINK);
     mu_run_test(test_QUOTE_BLOCK);
+    mu_run_test(test_IMAGE);
 
     return 0;
 }
