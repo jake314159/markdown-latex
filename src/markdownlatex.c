@@ -349,6 +349,29 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             //add the character before but replace the " with ''
             fprintf(out, "''");
             //i++;
+        } else if(s.type == IMAGE) {
+            //NOTE only works with local images!
+            //\includegraphics[width=10cm, height=10cm, keepaspectratio]{chick}
+            fprintf(out, "\\includegraphics[width=10cm, height=10cm, keepaspectratio]{");
+
+            //Move up to the url ignoring the alt text
+            while(string[i] != '(') {
+                i++;
+            }
+            i++;
+            
+            while(string[i+1] != '"' && string[i] != ')') {
+                putc(string[i], out);   
+
+                i++;
+            }
+            while(string[i] != ')') {
+                i++;
+            }
+            i++;
+
+            fprintf(out, "}\n\n");
+
         } else if(s.type == LINK) {
             //[This link](http://example.net/)
             //\href{http://www.wikibooks.org}{Wikibooks home}
@@ -432,7 +455,7 @@ int main ( int argc, char *argv[] )
     if(marginSize == NULL)      marginSize = "1.5in";
     if(doucmentType == NULL)    doucmentType = "report";
     
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{graphicx}\n\\usepackage{ulem}\n",
                         fontSize, doucmentType, marginSize);
 
 
