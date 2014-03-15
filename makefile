@@ -1,11 +1,12 @@
 
 USR_BIN = /usr/bin
+FILE_OUT = markdownlatex
 
 all: main
 test: tester
 
 main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o
-	$(CC) bin/markdownlatex.o bin/lexer.o bin/parserstringops.o bin/tableProcessor.o -std=c99 -Wall -o bin/markdownlatex
+	$(CC) bin/markdownlatex.o bin/lexer.o bin/parserstringops.o bin/tableProcessor.o -std=c99 -Wall -o bin/$(FILE_OUT)
 
 markdownlatex.o: src/markdownlatex.c bindir
 	$(CC) -std=c99 -Wall -c src/markdownlatex.c -o bin/markdownlatex.o
