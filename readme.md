@@ -70,7 +70,7 @@ Currently markdownlatex imports all the required tex packages even if they aren'
 
 + *listings* (For code blocks)
 + *tabularx* (used for tables)
-+ *xcolor* (used for shading every other table row
++ *xcolor* (used for shading every other table row and code highlighting)
 + *tableShade* (used for shading every other table row)
 + *geometry* (used for selecting custom margin sizes (can't be removed))
 + *ulem* (used for strikethroughs)
