@@ -182,7 +182,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             fprintf(out, "\\item ");
             i++;
             //return TRUE;
-        } else {
+        } else if(groupedNewLineCount > 1) {
             //We just found the end of the list
             fprintf(out, "\\end{itemize}\n");
             inList = FALSE;
@@ -488,6 +488,11 @@ int main ( int argc, char *argv[] )
             getLineReturnCode = getLineFile(buf, bufferSize, fp);
         }
     }
+
+    if(inList) {
+        fprintf(fout, "\\end{itemize}\n");
+    }
+
     fprintf(fout, "\\end{document}\n\n\n");
     fprintf(fout, "%%\n");
     fprintf(fout, "%%     COMPILED WITH MARKDOWN LATEX\n");

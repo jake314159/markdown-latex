@@ -39,7 +39,7 @@ make install
 Not all markdown is supported (yet). Below is a list of the supported markdown syntax
 
 + Headers H1-H3 done with hashes
-+ Lists done with + * or - operators
++ Lists
 + Ordered lists done with + or - operators
 + Bold
 + Italic
@@ -56,7 +56,6 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Images
 
 ##Markdown syntax TODO
-+ Lists with multiple paragraphs
 + Nested lists
 + Symbols
 + Math
