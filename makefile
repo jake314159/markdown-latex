@@ -1,44 +1,61 @@
 
+SHELL = /bin/sh
+
+#Users bin (used when installing)
 USR_BIN = /usr/bin
+
+# Name of the generated binary
 FILE_OUT = markdownlatex
 
+BIN = bin
+SRC = src
+srcdir = .
+
+CC = gcc
+CCFLAGS = -std=c99 -Wall
+
 all: main
-test: tester
+check: tester
 
 main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o
-	$(CC) bin/markdownlatex.o bin/lexer.o bin/parserstringops.o bin/tableProcessor.o -std=c99 -Wall -o bin/$(FILE_OUT)
+	$(CC) $(srcdir)/$(BIN)/markdownlatex.o $(srcdir)/$(BIN)/lexer.o $(srcdir)/$(BIN)/parserstringops.o $(srcdir)/$(BIN)/tableProcessor.o $(CCFLAGS) -o $(srcdir)/$(BIN)/$(FILE_OUT)
 
 markdownlatex.o: src/markdownlatex.c bindir
-	$(CC) -std=c99 -Wall -c src/markdownlatex.c -o bin/markdownlatex.o
+	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/markdownlatex.c -o $(srcdir)/$(BIN)/markdownlatex.o
 
-lexer.o: src/lexer.c bindir
-	$(CC) -std=c99 -Wall -c src/lexer.c -o bin/lexer.o
+lexer.o: $(srcdir)/$(SRC)/lexer.c bindir
+	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/lexer.c -o $(srcdir)/$(BIN)/lexer.o
 
-parserstringops.o: src/parserstringops.c bindir
-	$(CC) -std=c99 -Wall -c src/parserstringops.c -o bin/parserstringops.o
+parserstringops.o: $(srcdir)/$(SRC)/parserstringops.c bindir
+	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/parserstringops.c -o $(srcdir)/$(BIN)/parserstringops.o
 
-tableProcessor.o: src/tableProcessor.c bindir
-	$(CC) -std=c99 -Wall -c src/tableProcessor.c -o bin/tableProcessor.o
+tableProcessor.o: $(srcdir)/$(SRC)/tableProcessor.c bindir
+	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/tableProcessor.c -o $(srcdir)/$(BIN)/tableProcessor.o
 
 bindir:
-	mkdir -p bin
+	mkdir -p $(BIN)
 
 testbindir:
 	mkdir -p testbin
 
 tester.o: testbindir tests/tester.c
-	$(CC) -std=c99 -Wall -c tests/tester.c -o testbin/tester.o
+	$(CC) $(CCFLAGS) -c tests/tester.c -o testbin/tester.o
  
 clean:
 	rm -fr testbin/*.o
-	rm -fr bin/*.o
+	rm -fr $(srcdir)/$(BIN)/*.o
 
-install:
-	cp bin/markdownlatex $(USR_BIN)/markdownlatex
+install: $(srcdir)/$(BIN)/markdownlatex
+	cp $(srcdir)/$(BIN)/markdownlatex $(USR_BIN)/markdownlatex
+
+uninstall: $(USR_BIN)/markdownlatex
+	rm $(USR_BIN)/markdownlatex
 
 tester: main tester.o testbindir
-	$(CC) testbin/tester.o bin/parserstringops.o bin/lexer.o -o testbin/tester
+	$(CC) testbin/tester.o $(srcdir)/$(BIN)/parserstringops.o $(srcdir)/$(BIN)/lexer.o -o testbin/tester
 	./testbin/tester
 
+dist:
+	echo "Not yet implemented"
 
-#gcc src/markdownlatex.c src/lexer.c src/parserstringops.c -std=c99 -Wall -o bin/markdownlatex
+#gcc src/markdownlatex.c src/lexer.c src/parserstringops.c $(CCFLAGS) -o bin/markdownlatex
