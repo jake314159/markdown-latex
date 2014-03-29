@@ -178,7 +178,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     }
     
     if(inList) {
-        if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
+        if((lineStart.type == ITEMIZE && lineStart.loc < 2) || (lineStart.type == ITALIC && lineStart.loc == 0)) {
             fprintf(out, "\\item ");
             i++;
             //return TRUE;
@@ -189,7 +189,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         }
     } else {
         //We aren't in a list but we just found a new one
-        if(lineStart.type == ITEMIZE && lineStart.loc < 2) {
+        if((lineStart.type == ITEMIZE && lineStart.loc < 2) || (lineStart.type == ITALIC && lineStart.loc == 0)) {
             inList = TRUE;
             fprintf(out, "\\begin{itemize}\n\\item");//, buf, 0);
             i++;
@@ -210,6 +210,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         }
     } else {
         //We aren't in a list but we just found a new one
+        // And btw if there is a * (Italic) at the start then it is probubly a list
         if(lineStart.type == ENUMERATE && lineStart.loc < 2) {
             inNumberList = TRUE;
             fprintf(out, "\\begin{enumerate}\n\\item");//, buf, 0);
