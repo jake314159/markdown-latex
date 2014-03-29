@@ -56,6 +56,12 @@ Symbol lex(char* string)
         } else if(string[i] == '#' && string[i+1] == '#' && string[i+2] == '#' && string[i+3] != '#' ) {
             Symbol s = {i, H3};
             return s;
+        } else if(string[i] == '=' && string[i+1] == '=' && string[i+2] == '=') {
+            Symbol s = {i, H1_LINE};
+            return s;
+        } else if(string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') {
+            Symbol s = {i, H2_LINE};
+            return s;
         } else if( string[i] == '*' && string[i+1] != '*' ) {
             Symbol s = {i, ITALIC};
             return s;
