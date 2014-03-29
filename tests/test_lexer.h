@@ -173,6 +173,18 @@ static char* test_IMAGE() {
     return 0;
 }
 
+static char* test_tab_tab() {
+    Symbol s = lex(" \t");
+    mu_assert("Lexer tab token (with \\t)", s.type==TAB && s.loc==1);
+    return 0;
+}
+
+static char* test_tab_space() {
+    Symbol s = lex("    ");
+    mu_assert("Lexer tab token (with spaces)", s.type==TAB && s.loc==0);
+    return 0;
+}
+
 static char* all_lexer_tests() {
     mu_run_test(test_NONE);
     mu_run_test(test_BOLD);
@@ -198,6 +210,8 @@ static char* all_lexer_tests() {
     mu_run_test(test_LINK);
     mu_run_test(test_QUOTE_BLOCK);
     mu_run_test(test_IMAGE);
+    mu_run_test(test_tab_tab);
+    mu_run_test(test_tab_space);
 
     return 0;
 }
