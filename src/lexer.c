@@ -68,6 +68,9 @@ Symbol lex(char* string)
         } else if( string[i] == '+' || string[i] == '-' ) {
             Symbol s = {i, ITEMIZE};
             return s;
+        } else if(string[i] == '\t' || (string[i] == ' ' && string[i+1] == ' ' && string[i+2] == ' ' && string[i+3] == ' ')) {
+            Symbol s = {i, TAB};
+            return s;
         } else if(string[i] == '_' && string[i+1] != '_') {
             Symbol s = {i, UNDERLINE};
             return s;
