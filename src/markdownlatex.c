@@ -66,6 +66,11 @@ char displayTitle = FALSE;
 //How many empty new lines have we seen in a row?
 int groupedNewLineCount = 0;
 
+// Libary usage is stored in these variables so we can only include things which are actualy needed
+char reqLib_code = false;
+char reqLib_table = false;
+char reqLib_images = false;
+
 void outOfMemoryError()
 {
     fprintf(stderr, "Out of memory\nUnable to continue\n");
@@ -147,6 +152,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         int qC = 1; 
         int j = lineStart.loc+1;
         Symbol s = lex(string+1);
+        reqLib_code = true;
         
         while(s.type == QUOTE_BLOCK) {
             //fprintf(out, "%% qc= %d, quoteBlockDepth=%d, j=%d\n", qC, quoteBlockDepth, j);
@@ -225,6 +231,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
     if(lineStart.type == TABLE_COL_SEP) {
         processTable(string, in, out);
+        reqLib_table = true;
         return 0;
     }
 
@@ -351,6 +358,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             fprintf(out, "''");
             //i++;
         } else if(s.type == IMAGE) {
+            reqLib_images = true;
             //NOTE only works with local images!
             //\includegraphics[width=10cm, height=10cm, keepaspectratio]{chick}
             fprintf(out, "\\includegraphics[width=10cm, height=10cm, keepaspectratio]{");
