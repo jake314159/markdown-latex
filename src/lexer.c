@@ -83,6 +83,9 @@ Symbol lex(char* string)
         } else if(string[i] == '`' && string[i+1] == '`' && string[i+2] == '`') {
             Symbol s = {i, CODE};
             return s;
+        } else if(string[i] == '&') {
+            Symbol s = {i, AMP};
+            return s;
         } else if(isdigit(string[i])) {
             //Get the next non number digit
             int j=i;

@@ -18,7 +18,7 @@ It can also be run using standard input and output with the command
 markdownlatex < example.md > output.tex
 ```
 
-##Compile & install
+##Compile and install
 
 The file can be compiled with the following commands
 
@@ -45,7 +45,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Italic
 + Underline
 + Strike through
-+ Code blocks & syntax highlighting
++ Code blocks and syntax highlighting
 + Page break - not standard markdown but can be done with 4 or more empty lines
 + Horizontal rules (3 or more \* or \- (ignoring spaces))
 + Backslash escapes

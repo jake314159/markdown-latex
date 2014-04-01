@@ -309,6 +309,8 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             
         } else if(s.type == LINE_BREAK) {
             fprintf(out, "\n\\vspace{2mm}");
+        } else if(s.type == AMP) { 
+            fprintf(out, "\\&"); 
         } else if(s.type == BOLD) {
             //Bold text
             if(inBold) {
