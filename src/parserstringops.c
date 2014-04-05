@@ -127,3 +127,16 @@ int compareSub(char* string1, char* string2, int length)
     }
     return 0; //0 for equal
 }
+
+void copyFileContents(FILE* src, FILE* dest)
+{
+    char c;
+    while(TRUE) {
+        c = getc(src);
+        if(c != EOF) {
+            putc(c, dest);
+        } else {
+            return;
+        }
+    }
+}

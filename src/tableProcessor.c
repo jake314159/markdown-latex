@@ -173,7 +173,7 @@ int processTable(char* line1, FILE* in, FILE* out)
     } else {
         fprintf(out, "\\end{tabular}");
     }
-    fprintf(out, "\n\\\n\\end{center}\n\\vspace{5mm}\n");
+    fprintf(out, "\n\\end{center}\n\\vspace{5mm}\n");
 
     free(cols);
     return 0;

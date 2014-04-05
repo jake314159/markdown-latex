@@ -30,6 +30,8 @@
 #define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
 
+#define TEMP_FILE "temp_markdownlatex_file~"
+
 int parseLine(char* string, int stringLength, FILE* in, FILE* out);
 int getStringLength(char* string);
 
@@ -152,7 +154,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         int qC = 1; 
         int j = lineStart.loc+1;
         Symbol s = lex(string+1);
-        reqLib_code = true;
         
         while(s.type == QUOTE_BLOCK) {
             //fprintf(out, "%% qc= %d, quoteBlockDepth=%d, j=%d\n", qC, quoteBlockDepth, j);
@@ -252,6 +253,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         // One very long else-if statement handling each possible type //
         /////////////////////////////////////////////////////////////////        
         if(isCode || s.type == CODE) {
+            reqLib_code = true;
             if(isCode && s.type == CODE) {
                 fprintf(out, "\\end{lstlisting}");
                 isCode = FALSE;
@@ -452,12 +454,14 @@ int main ( int argc, char *argv[] )
 
     FILE *fp = NULL;
     FILE *fout = NULL;
+    FILE *foutTemp = NULL;
     if(argc > 1) {
         fp = fopen(argv[argc-1], "r"); // error check this!
         if(outFile != NULL) {
             fout = fopen(outFile, "w");
         } //else leave as stout
     }
+    foutTemp = fopen(TEMP_FILE, "w");
 
     //Set default settings
     if(fp == NULL)              fp = stdin;
@@ -465,19 +469,15 @@ int main ( int argc, char *argv[] )
     if(fontSize == NULL)        fontSize = "11pt";
     if(marginSize == NULL)      marginSize = "1.5in";
     if(doucmentType == NULL)    doucmentType = "report";
-    
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{listings}\n\\usepackage{tabularx}\n\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{graphicx}\n\\usepackage{ulem}\n",
-                        fontSize, doucmentType, marginSize);
 
-
-    fprintf(fout, "%s\n", colorData);
-
-    fprintf(fout, "\\begin{document}\n\n\n");
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
         outOfMemoryError();
     }
     
+    // Write to a temp file
+    // This is so we can know what libaries we need to put in the header
+    // These file will be copied into the actual file later and then deleted
     int getLineReturnCode = getLineFile(buf, bufferSize, fp);
     while( getLineReturnCode > 0 ) {
         //If we have a buffer overflow
@@ -493,15 +493,45 @@ int main ( int argc, char *argv[] )
             //Note the -1 is to ignore the \0 added by getLineFile();
             getLineReturnCode = getLineFile(buf+oldSize-1, oldSize+1, fp);
         } else {
-            parseLine(buf, getStringLength(buf), fp, fout);
-            putc('\n', fout);
+            parseLine(buf, getStringLength(buf), fp, foutTemp);
+            putc('\n', foutTemp);
             getLineReturnCode = getLineFile(buf, bufferSize, fp);
         }
     }
 
     if(inList) {
-        fprintf(fout, "\\end{itemize}\n");
+        fprintf(foutTemp, "\\end{itemize}\n");
     }
+    fclose(foutTemp);
+
+    //Required libaries
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
+                        fontSize, doucmentType, marginSize);
+
+    // Optional libaries
+    if(reqLib_code || reqLib_table) {
+        fprintf(fout, "\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n");
+    }    
+
+    if(reqLib_code) {
+        fprintf(fout, "\\usepackage{listings}\n");
+        fprintf(fout, "%s\n", colorData);
+    }
+
+    if(reqLib_table) {
+        fprintf(fout, "\\usepackage{tabularx}\n");
+    }
+
+    if(reqLib_images) {
+        fprintf(fout, "\\usepackage{graphicx}\n");
+    }
+
+    fprintf(fout, "\\begin{document}\n\n\n");
+    
+    //Write the temp file into the actual file
+    FILE* finTemp = fopen(TEMP_FILE, "r");
+    copyFileContents(finTemp, fout);
+    remove(TEMP_FILE);
 
     fprintf(fout, "\\end{document}\n\n\n");
     fprintf(fout, "%%\n");
