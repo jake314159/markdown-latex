@@ -361,6 +361,14 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             //add the character before but replace the " with ''
             fprintf(out, "''");
             //i++;
+        } else if(s.type == APOSTROPHE_LEFT) {
+            //add the character before but replace the " with ``
+            fprintf(out, "`");
+            //i++;
+        } else if(s.type == APOSTROPHE_RIGHT) {
+            //add the character before but replace the " with ''
+            fprintf(out, "'");
+            //i++;
         } else if(s.type == IMAGE) {
             reqLib_images = true;
             //NOTE only works with local images!

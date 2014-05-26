@@ -145,13 +145,25 @@ static char* test_COMMENT_CLOSE() {
 
 static char* test_QUOTE_LEFT() {
     Symbol s = lex(" \"Some text");
-   mu_assert("Lexer comment close token", s.type==QUOTE_LEFT && s.loc==1);
+   mu_assert("Lexer quote left token", s.type==QUOTE_LEFT && s.loc==1);
    return 0;
 }
 
 static char* test_QUOTE_RIGHT() {
     Symbol s = lex(" Some\" text");
-   mu_assert("Lexer comment close token", s.type==QUOTE_RIGHT && s.loc==5);
+   mu_assert("Lexer quote right token", s.type==QUOTE_RIGHT && s.loc==5);
+   return 0;
+}
+
+static char* test_APOSTROPHE_LEFT() {
+    Symbol s = lex(" 'Some text");
+   mu_assert("Lexer apostrophe left token", s.type==APOSTROPHE_LEFT && s.loc==1);
+   return 0;
+}
+
+static char* test_APOSTROPHE_RIGHT() {
+    Symbol s = lex(" Some' text");
+   mu_assert("Lexer apostrophe right token", s.type==APOSTROPHE_RIGHT && s.loc==5);
    return 0;
 }
 
@@ -212,6 +224,8 @@ static char* all_lexer_tests() {
     mu_run_test(test_IMAGE);
     mu_run_test(test_tab_tab);
     mu_run_test(test_tab_space);
+    mu_run_test(test_APOSTROPHE_LEFT);
+    mu_run_test(test_APOSTROPHE_RIGHT);
 
     return 0;
 }

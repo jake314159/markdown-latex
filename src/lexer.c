@@ -112,6 +112,14 @@ Symbol lex(char* string)
                 Symbol s = {i+1, QUOTE_RIGHT};
                 return s;
             }
+        } else if (string[i+1] == '\'') { 
+            if(string[i] == ' ') {
+                Symbol s = {i+1, APOSTROPHE_LEFT};
+                return s;
+            } else {
+                Symbol s = {i+1, APOSTROPHE_RIGHT};
+                return s;
+            }
         }
         i++;
     }
