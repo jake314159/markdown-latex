@@ -275,155 +275,171 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 //Note skip if not code formatting BUT is within a code block
                 putc(string[i], out);
             }
-        } else if(s.type == ESCAPE) {
-            putc(string[i+1], out);
-            i += 1;
-        } else if(s.type == H1) {
-              //Section
-            fprintf(out, "\\section*{");
-
-            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
-                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-                endOfLineIndex += 1; //length added to end of line
-            }
-           
-        } else if(s.type == H2) {
-             //Subsection
-            fprintf(out, "\\subsection*{");
-            
-            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
-                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-                endOfLineIndex += 1; //length added to end of line
-            }
-
-            i += 1; //Go past the extra character we looked fowards too
-            
-        } else if(s.type == H3) {
-             //Subsubsection
-            fprintf(out, "\\subsubsection*{");
-            
-            if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
-                writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
-                endOfLineIndex += 1; //length added to end of line
-            }
-
-            i += 2; //Go past the extra characters we looked fowards too
-            
-        } else if(s.type == LINE_BREAK) {
-            fprintf(out, "\n\\vspace{2mm}");
-        } else if(s.type == AMP) { 
-            fprintf(out, "\\&"); 
-        } else if(s.type == BOLD) {
-            //Bold text
-            if(inBold) {
-                putc('}', out);
-                inBold = FALSE;
-                i += 1;
-            } else {
-                fprintf(out, "\\textbf{");
-                inBold = TRUE;
-                i += 1;
-            }   
-        } else if(s.type == STRIKETHROUGH) {
-            //Bold text
-            if(inStrikethrough) {
-                putc('}', out);
-                inStrikethrough = FALSE;
-                i += 1;
-            } else {
-                fprintf(out, "\\sout{");
-                inStrikethrough = TRUE;
-                i += 1;
-            }   
-        } else if(s.type == ITALIC) {
-            //Bold text
-            if(inItalic) {
-                putc('}', out);
-                inItalic = FALSE;
-            } else {
-                fprintf(out, "\\textit{");
-                inItalic = TRUE;
-            }   
-        } else if(s.type == UNDERLINE) {
-            //Bold text
-            if(inUnderline) {
-                putc('}', out);
-                inUnderline = FALSE;
-            } else {
-                fprintf(out, "\\underline{");
-                inUnderline = TRUE;
-            }   
-        } else if(s.type == QUOTE_LEFT) {
-            //add the character before but replace the " with ``
-            fprintf(out, "``");
-            //i++;
-        } else if(s.type == QUOTE_RIGHT) {
-            //add the character before but replace the " with ''
-            fprintf(out, "''");
-            //i++;
-        } else if(s.type == APOSTROPHE_LEFT) {
-            //add the character before but replace the " with ``
-            fprintf(out, "`");
-            //i++;
-        } else if(s.type == APOSTROPHE_RIGHT) {
-            //add the character before but replace the " with ''
-            fprintf(out, "'");
-            //i++;
-        } else if(s.type == IMAGE) {
-            reqLib_images = true;
-            //NOTE only works with local images!
-            //\includegraphics[width=10cm, height=10cm, keepaspectratio]{chick}
-            fprintf(out, "\\includegraphics[width=10cm, height=10cm, keepaspectratio]{");
-
-            //Move up to the url ignoring the alt text
-            while(string[i] != '(') {
-                i++;
-            }
-            i++;
-            
-            while(string[i+1] != '"' && string[i] != ')') {
-                putc(string[i], out);   
-
-                i++;
-            }
-            while(string[i] != ')') {
-                i++;
-            }
-            i++;
-
-            fprintf(out, "}\n\n");
-
-        } else if(s.type == LINK) {
-            //[This link](http://example.net/)
-            //\href{http://www.wikibooks.org}{Wikibooks home}
-            int j = 1;
-            while(string[i+j] != ']') {
-                j++;
-            }
-            char* namebuf = (char*) malloc(j * sizeof(char));
-
-            j = 1;
-            while(string[i+j] != ']') {
-                namebuf[j-1] = string[i+j];
-                j++;
-            }
-            namebuf[j-1] = '\0';
-
-            fprintf(out, "\\href{");
-            
-            j+=2;
-            while(string[i+j] != ')') {
-                putc(string[i+j], out);
-                j++;
-            }
-
-            fprintf(out, "}{%s} ", namebuf);
-
-            free(namebuf);
-            i += j;
         } else {
-            putc(string[i], out);
-        }
+
+            switch(s.type) {
+
+                case ESCAPE:
+                    putc(string[i+1], out);
+                    i += 1;
+                    break;
+                case H1:
+                    fprintf(out, "\\section*{");
+
+                    if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                        writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                        endOfLineIndex += 1; //length added to end of line
+                    }
+                    break;
+               
+                case H2:
+                    //Subsection
+                    fprintf(out, "\\subsection*{");
+                    
+                    if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                        writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                        endOfLineIndex += 1; //length added to end of line
+                    }
+
+                    i += 1; //Go past the extra character we looked fowards too
+                    break;
+                
+                case H3:
+                     //Subsubsection
+                    fprintf(out, "\\subsubsection*{");
+                    
+                    if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
+                        writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
+                        endOfLineIndex += 1; //length added to end of line
+                    }
+
+                    i += 2; //Go past the extra characters we looked fowards too
+                    break;
+                
+                case LINE_BREAK:
+                    fprintf(out, "\n\\vspace{2mm}");
+                    break;
+                case AMP:
+                    fprintf(out, "\\&"); 
+                    break;
+                case BOLD:
+                    //Bold text
+                    if(inBold) {
+                        putc('}', out);
+                        inBold = FALSE;
+                        i += 1;
+                    } else {
+                        fprintf(out, "\\textbf{");
+                        inBold = TRUE;
+                        i += 1;
+                    }   
+                    break;
+                case STRIKETHROUGH:
+                    //Bold text
+                    if(inStrikethrough) {
+                        putc('}', out);
+                        inStrikethrough = FALSE;
+                        i += 1;
+                    } else {
+                        fprintf(out, "\\sout{");
+                        inStrikethrough = TRUE;
+                        i += 1;
+                    }   
+                    break;
+                case ITALIC:
+                    //Italic text
+                    if(inItalic) {
+                        putc('}', out);
+                        inItalic = FALSE;
+                    } else {
+                        fprintf(out, "\\textit{");
+                        inItalic = TRUE;
+                    }   
+                    break;
+                case UNDERLINE:
+                    //Underline text
+                    if(inUnderline) {
+                        putc('}', out);
+                        inUnderline = FALSE;
+                    } else {
+                        fprintf(out, "\\underline{");
+                        inUnderline = TRUE;
+                    } 
+                    break;  
+                case QUOTE_LEFT:
+                    //add the character before but replace the " with ``
+                    fprintf(out, "``");
+                    break;
+                case QUOTE_RIGHT:
+                    //add the character before but replace the " with ''
+                    fprintf(out, "''");
+                    break;
+                case APOSTROPHE_LEFT:
+                    fprintf(out, "`");
+                    break;
+                case APOSTROPHE_RIGHT:
+                    fprintf(out, "'");
+                    break;
+                case IMAGE:
+                    reqLib_images = true;
+                    //NOTE only works with local images!
+                    //\includegraphics[width=10cm, height=10cm, keepaspectratio]{chick}
+                    fprintf(out, "\\includegraphics[width=10cm, height=10cm, keepaspectratio]{");
+
+                    //Move up to the url ignoring the alt text
+                    while(string[i] != '(') {
+                        i++;
+                    }
+                    i++;
+                    
+                    while(string[i+1] != '"' && string[i] != ')') {
+                        putc(string[i], out);   
+
+                        i++;
+                    }
+                    while(string[i] != ')') {
+                        i++;
+                    }
+                    i++;
+
+                    fprintf(out, "}\n\n");
+                    break;
+
+                case LINK: ; //Decliration can't follow a label so here is a empty statment
+                    //[This link](http://example.net/)
+                    //\href{http://www.wikibooks.org}{Wikibooks home}
+                    int j = 1;
+                    while(string[i+j] != ']') {
+                        j++;
+                    }
+                    char* namebuf = (char*) malloc(j * sizeof(char));
+
+                    j = 1;
+                    while(string[i+j] != ']') {
+                        namebuf[j-1] = string[i+j];
+                        j++;
+                    }
+                    namebuf[j-1] = '\0';
+
+                    fprintf(out, "\\href{");
+                    
+                    j+=2;
+                    while(string[i+j] != ')') {
+                        putc(string[i+j], out);
+                        j++;
+                    }
+
+                    fprintf(out, "}{%s} ", namebuf);
+
+                    free(namebuf);
+                    i += j;
+                    break;
+                default:
+                    putc(string[i], out);
+                    break;
+
+            } //end switch statment
+        } //end else containing the switch
     }
     
     //Write anything which has been delayed till the end of line has been reached (eg. close any headings)
