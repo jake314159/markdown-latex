@@ -486,8 +486,9 @@ int main ( int argc, char *argv[] )
     char* outFile = NULL;
 
     char* fontSize = NULL;
-    char* doucmentType = NULL;
+    char* documentType = NULL;
     char* marginSize = NULL;
+    char* colorFile = NULL;
 
     for(int i=0; i<argc-1; i++) {
         if(argv[i][0] == '-' && argv[i][1] == 'o') {
@@ -496,9 +497,11 @@ int main ( int argc, char *argv[] )
             //NOTE only '10pt' '11pt' and '12pt' are valid sizes
             fontSize = argv[++i];
         } else if(argv[i][0] == '-' && argv[i][1] == 'd') {
-            doucmentType = argv[++i];
+            documentType = argv[++i];
         } else if(argv[i][0] == '-' && argv[i][1] == 'm') {
             marginSize = argv[++i];
+        } else if(argv[i][0] == '-' && argv[i][1] == 'c') {
+            colorFile = argv[++i];
         }
     }
 
@@ -523,7 +526,7 @@ int main ( int argc, char *argv[] )
     if(fout == NULL)            fout = stdout;
     if(fontSize == NULL)        fontSize = "11pt";
     if(marginSize == NULL)      marginSize = "1.5in";
-    if(doucmentType == NULL)    doucmentType = "report";
+    if(documentType == NULL)    documentType = "report";
 
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
@@ -561,7 +564,7 @@ int main ( int argc, char *argv[] )
 
     //Required libaries
     fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
-                        fontSize, doucmentType, marginSize);
+                        fontSize, documentType, marginSize);
 
     // Optional libaries
     if(reqLib_code || reqLib_table) {
@@ -570,7 +573,22 @@ int main ( int argc, char *argv[] )
 
     if(reqLib_code) {
         fprintf(fout, "\\usepackage{listings}\n");
-        fprintf(fout, "%s\n", colorData);
+        char success = false;
+        
+        if(colorFile != NULL) {
+            FILE* colorFileFile = fopen(colorFile, "r");
+            if(colorFileFile != NULL) {
+                fprintf(fout, "\\lstset{");
+                copyFileContents(colorFileFile, fout);
+                fprintf(fout, "}\n");
+                success = true;
+            }
+        }
+
+        if(!success) {
+            //use the default
+            fprintf(fout, "%s\n", colorData);
+        }
     }
 
     if(reqLib_table) {
@@ -600,7 +618,7 @@ int main ( int argc, char *argv[] )
     fprintf(fout, "%%     https://github.com/jake314159/markdown-latex\n");
     fprintf(fout, "%%\n");
     fprintf(fout, "%%\n");
-    fprintf(fout, "%%     Compile notes: (v=%d.%d.%d,buf=%dBto%dB,margin=%s,doc=%s)\n", V_MAJOR, V_MINOR, V_PATCH, BUF_SIZE, bufferSize, marginSize,doucmentType);
+    fprintf(fout, "%%     Compile notes: (v=%d.%d.%d,buf=%dBto%dB,margin=%s,doc=%s)\n", V_MAJOR, V_MINOR, V_PATCH, BUF_SIZE, bufferSize, marginSize,documentType);
     fprintf(fout, "%%\n\n\n");
     free(buf);
     return 0;
