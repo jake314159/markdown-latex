@@ -105,7 +105,7 @@ $$$
 $$$
 ```
 
-Where the '$$$' symbols have their own line
+Where the dollar symbols have their own line
 
 **Inline equations**
 
@@ -113,7 +113,7 @@ Where the '$$$' symbols have their own line
 Or you can have maths inline like this $$$\alpha$$$.
 ```
 
-Where the '$$$' are part of a seprate sentence.
+Where the dollar are part of a sentence.
 
 ##Licence
 
