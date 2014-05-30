@@ -24,109 +24,109 @@
 
 Symbol lex(char* string)
 {
+    Symbol s = {0, NONE};
     int i = 0;
     
-    while(string[i] != '\0') {
+    while(string[i] != '\0' && s.type == NONE) {
         //printf("i=%d\n",i);
         if(string[i] == '\\' && string[i+1] != '\\') {
-            Symbol s = {i, ESCAPE};
-            return s;
+            s.loc = i;
+            s.type = ESCAPE;
         } else if(string[i]=='>') {
-            Symbol s = {i, QUOTE_BLOCK};
-            return s;
+            s.loc = i;
+            s.type = QUOTE_BLOCK;
         } else if(string[i] == ' ' && string[i+1] == ' ' && string[i+2] == '\0') {
-            Symbol s = {i, LINE_BREAK};
-            return s;
+            s.loc = i;
+            s.type = LINE_BREAK;
         } else if( string[i] == '<' && string[i+1] == '!' && string[i+2] == '-' && string[i+3] == '-'  ) {
-            Symbol s = {i, COMMENT_OPEN};
-            return s;
+            s.loc = i;
+            s.type = COMMENT_OPEN;
         } else if( string[i] == '-' && string[i+1] == '-' && string[i+2] == '>') {
-            Symbol s = {i, COMMENT_CLOSE};
-            return s;
+            s.loc = i;
+            s.type = COMMENT_CLOSE;
         } else if( (string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') ||
                         (string[i] == '*' && string[i+1] == '*' && string[i+2] == '*') ) {
-            Symbol s = {i, HORIZONTAL_RULE};
-            return s;
+            s.loc = i;
+            s.type = HORIZONTAL_RULE;
         }else if(string[i] == '#' && string[i+1] != '#') {
-            Symbol s = {i, H1};
-            return s;
+            s.loc = i;
+            s.type = H1;
         } else if(string[i] == '#' && string[i+1] == '#' && string[i+2] != '#' ) {
-            Symbol s = {i, H2};
-            return s;
+            s.loc = i;
+            s.type = H2;
         } else if(string[i] == '#' && string[i+1] == '#' && string[i+2] == '#' && string[i+3] != '#' ) {
-            Symbol s = {i, H3};
-            return s;
+            s.loc = i;
+            s.type = H3;
         } else if(string[i] == '=' && string[i+1] == '=' && string[i+2] == '=') {
-            Symbol s = {i, H1_LINE};
-            return s;
+            s.loc = i;
+            s.type = H1_LINE;
         } else if(string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') {
-            Symbol s = {i, H2_LINE};
-            return s;
+            s.loc = i;
+            s.type = H2_LINE;
         } else if( string[i] == '*' && string[i+1] != '*' ) {
-            Symbol s = {i, ITALIC};
-            return s;
+            s.loc = i;
+            s.type = ITALIC;
         } else if( string[i] == '*' && string[i+1] == '*' ) {
-            Symbol s = {i, BOLD};
-            return s;
+            s.loc = i;
+            s.type = BOLD;
         } else if( string[i] == '~' && string[i+1] == '~' ) {
-            Symbol s = {i, STRIKETHROUGH};
-            return s;
+            s.loc = i;
+            s.type = STRIKETHROUGH;
         } else if( string[i] == '+' || string[i] == '-' ) {
-            Symbol s = {i, ITEMIZE};
-            return s;
+            s.loc = i;
+            s.type = ITEMIZE;
         } else if(string[i] == '\t' || (string[i] == ' ' && string[i+1] == ' ' && string[i+2] == ' ' && string[i+3] == ' ')) {
-            Symbol s = {i, TAB};
-            return s;
+            s.loc = i;
+            s.type = TAB;
         } else if(string[i] == '_' && string[i+1] != '_') {
-            Symbol s = {i, UNDERLINE};
-            return s;
+            s.loc = i;
+            s.type = UNDERLINE;
         } else if(string[i] == '`' && string[i+1] == '`' && string[i+2] == '`') {
-            Symbol s = {i, CODE};
-            return s;
+            s.loc = i;
+            s.type = CODE;
         } else if(string[i] == '&') {
-            Symbol s = {i, AMP};
-            return s;
+            s.loc = i;
+            s.type = AMP;
         } else if(isdigit(string[i])) {
             //Get the next non number digit
             int j=i;
             while(isdigit(string[j])) j++;
             //j++;
             if(string[j] == '.' || string[j] == ')') {
-                Symbol s = {i, ENUMERATE};
-                return s; 
+                s.loc = i;
+                s.type = ENUMERATE; 
             } 
         } else if(string[i] == '|') {
-            Symbol s = {i, TABLE_COL_SEP};
-            return s;
+            s.loc = i;
+            s.type = TABLE_COL_SEP;
         } else if(string[i] == '!' && string[i+1]=='[') {
-            Symbol s = {i, IMAGE};
-            return s;
+            s.loc = i;
+            s.type = IMAGE;
         } else if(string[i] == '[') {
-            Symbol s = {i, LINK};
-            return s;
+            s.loc = i;
+            s.type = LINK;
         } else if (string[i+1] == '"') { 
             if(string[i] == ' ') {
-                Symbol s = {i+1, QUOTE_LEFT};
-                return s;
+                s.loc = i+1;
+                s.type = QUOTE_LEFT;
             } else {
-                Symbol s = {i+1, QUOTE_RIGHT};
-                return s;
+                s.loc = i+1;
+                s.type = QUOTE_RIGHT;
             }
         } else if (string[i+1] == '\'') { 
             if(string[i] == ' ') {
-                Symbol s = {i+1, APOSTROPHE_LEFT};
-                return s;
+                s.loc = i+1;
+                s.type = APOSTROPHE_LEFT;
             } else {
-                Symbol s = {i+1, APOSTROPHE_RIGHT};
-                return s;
+                s.loc = i+1;
+                s.type = APOSTROPHE_RIGHT;
             }
         } else if(string[i] == '$' && string[i+1] == '$' && string[i+2] == '$') {
-            Symbol s = {i, MATH};
-            return s;
+            s.loc = i;
+            s.type = MATH;
         }
         i++;
     }
     
-    Symbol s = {0, NONE};
     return s;
 }
