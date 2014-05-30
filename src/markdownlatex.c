@@ -343,9 +343,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 case LINE_BREAK:
                     fprintf(out, "\n\\vspace{2mm}");
                     break;
-                case AMP:
-                    fprintf(out, "\\&"); 
-                    break;
                 case BOLD:
                     if(inBold) {
                         putc('}', out);
@@ -461,6 +458,12 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 case COMMENT_CLOSE:
                     inComment = false;
                     i += 2;
+                    break;
+                //Symbols which need to be commented out for latex
+                case AMP:
+                case DOLLAR:
+                    putc('\\', out);
+                    putc(string[i], out);
                     break;
                 default:
                     putc(string[i], out);

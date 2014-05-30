@@ -124,6 +124,9 @@ Symbol lex(char* string)
         } else if(string[i] == '$' && string[i+1] == '$' && string[i+2] == '$') {
             s.loc = i;
             s.type = MATH;
+        } else if(string[i] == '$') {
+            s.loc = i;
+            s.type = DOLLAR;
         }
         i++;
     }
