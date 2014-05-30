@@ -73,6 +73,7 @@ Currently markdownlatex imports all the required tex packages even if they aren'
 + *geometry* (used for selecting custom margin sizes (can't be removed))
 + *ulem* (used for strikethroughs)
 + *graphicx* (used for images)
++ *amsmath* (used for equations)
 
 ##Non standard markdown
 
