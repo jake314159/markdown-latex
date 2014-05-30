@@ -58,6 +58,7 @@ char isCode = FALSE;
 char inNumberList = FALSE;
 char inBlockMath = FALSE;
 char inInlineMath = FALSE;
+char inComment = FALSE;
 char pageBreakPlaced = FALSE;
 
 int quoteBlockDepth = 0;
@@ -260,15 +261,23 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         s.loc += i; //change loc to be in terms of string
 
         //Move up to next symbol the lexer 
-        while( i < s.loc ) {
-            putc(string[i], out);
-            i++;
+        if(!inComment) {
+            while( i < s.loc ) {
+                putc(string[i], out);
+                i++;
+            }
+        } else {
+            while( i < s.loc ) {
+                i++;
+            }
         }
 
         /////////////////////////////////////////////////////////////////
         // One very long else-if statement handling each possible type //
-        /////////////////////////////////////////////////////////////////        
-        if(isCode || s.type == CODE) {
+        /////////////////////////////////////////////////////////////////
+        if(inComment && s.type != COMMENT_CLOSE) {     
+            i++; //Keep going until we find a comment   
+        } else if(isCode || s.type == CODE) {
             reqLib_code = true;
             if(isCode && s.type == CODE) {
                 fprintf(out, "\\end{lstlisting}");
@@ -444,6 +453,14 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     fprintf(out, "$");
                     i += 2;
                     inInlineMath = !inInlineMath;
+                    break;
+                case COMMENT_OPEN:
+                    inComment = true;
+                    i += 2;
+                    break;
+                case COMMENT_CLOSE:
+                    inComment = false;
+                    i += 2;
                     break;
                 default:
                     putc(string[i], out);

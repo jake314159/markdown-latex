@@ -60,7 +60,7 @@ Symbol lex(char* string)
         } else if(string[i] == '=' && string[i+1] == '=' && string[i+2] == '=') {
             s.loc = i;
             s.type = H1_LINE;
-        } else if(string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') {
+        } else if(string[i] == '-' && string[i+1] == '-' && string[i+2] == '-') { //ERROR (This will never == true as is HORIZ rule)
             s.loc = i;
             s.type = H2_LINE;
         } else if( string[i] == '*' && string[i+1] != '*' ) {
