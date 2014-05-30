@@ -197,6 +197,12 @@ static char* test_tab_space() {
     return 0;
 }
 
+static char* test_MATH() {
+    Symbol s = lex(" $$$MATH");
+   mu_assert("Lexer math token", s.type==MATH && s.loc==1);
+   return 0;
+}
+
 static char* all_lexer_tests() {
     mu_run_test(test_NONE);
     mu_run_test(test_BOLD);
@@ -226,6 +232,7 @@ static char* all_lexer_tests() {
     mu_run_test(test_tab_space);
     mu_run_test(test_APOSTROPHE_LEFT);
     mu_run_test(test_APOSTROPHE_RIGHT);
+    mu_run_test(test_MATH);
 
     return 0;
 }

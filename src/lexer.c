@@ -120,6 +120,9 @@ Symbol lex(char* string)
                 Symbol s = {i+1, APOSTROPHE_RIGHT};
                 return s;
             }
+        } else if(string[i] == '$' && string[i+1] == '$' && string[i+2] == '$') {
+            Symbol s = {i, MATH};
+            return s;
         }
         i++;
     }

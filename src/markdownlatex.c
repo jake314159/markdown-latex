@@ -56,6 +56,8 @@ char inUnderline = FALSE;
 char inStrikethrough = FALSE;
 char isCode = FALSE;
 char inNumberList = FALSE;
+char inBlockMath = FALSE;
+char inInlineMath = FALSE;
 char pageBreakPlaced = FALSE;
 
 int quoteBlockDepth = 0;
@@ -72,6 +74,7 @@ int groupedNewLineCount = 0;
 char reqLib_code = false;
 char reqLib_table = false;
 char reqLib_images = false;
+char reqLib_math = false;
 
 void outOfMemoryError()
 {
@@ -99,6 +102,18 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     //Do the things which are only valid if they apear at the start of a line
     Symbol lineStart = lex(string);
 
+    if(lineStart.type == MATH && string[lineStart.loc+3] == '\0') {
+        reqLib_math = TRUE;
+        if(inBlockMath) {
+            fprintf(out, "\\end{displaymath}");
+            inBlockMath = FALSE;
+        } else {
+            fprintf(out, "\\begin{displaymath}");
+            inBlockMath = TRUE;
+        }
+        return 0; //Success
+    }
+
     if(lineStart.type == COMMENT_OPEN && !markdownStarted) {
         inInitialCommentBlock = TRUE;
         return 0;
@@ -112,6 +127,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     } else if(!markdownStarted) {
         markdownStarted = TRUE;
     }
+
     
     if(inInitialCommentBlock) {
         //Processes the initial comment block which can contain information about things (eg. the cover page)
@@ -275,10 +291,13 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 //Note skip if not code formatting BUT is within a code block
                 putc(string[i], out);
             }
+        } else if((inInlineMath && s.type != MATH) || inBlockMath) {
+            reqLib_math = TRUE;
+            //else keep going until we find it
+            putc(string[i], out);
         } else {
 
             switch(s.type) {
-
                 case ESCAPE:
                     putc(string[i+1], out);
                     i += 1;
@@ -291,9 +310,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                         endOfLineIndex += 1; //length added to end of line
                     }
                     break;
-               
                 case H2:
-                    //Subsection
                     fprintf(out, "\\subsection*{");
                     
                     if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
@@ -305,7 +322,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     break;
                 
                 case H3:
-                     //Subsubsection
                     fprintf(out, "\\subsubsection*{");
                     
                     if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
@@ -315,7 +331,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
                     i += 2; //Go past the extra characters we looked fowards too
                     break;
-                
                 case LINE_BREAK:
                     fprintf(out, "\n\\vspace{2mm}");
                     break;
@@ -323,7 +338,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     fprintf(out, "\\&"); 
                     break;
                 case BOLD:
-                    //Bold text
                     if(inBold) {
                         putc('}', out);
                         inBold = FALSE;
@@ -335,7 +349,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     }   
                     break;
                 case STRIKETHROUGH:
-                    //Bold text
                     if(inStrikethrough) {
                         putc('}', out);
                         inStrikethrough = FALSE;
@@ -347,7 +360,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     }   
                     break;
                 case ITALIC:
-                    //Italic text
                     if(inItalic) {
                         putc('}', out);
                         inItalic = FALSE;
@@ -357,7 +369,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     }   
                     break;
                 case UNDERLINE:
-                    //Underline text
                     if(inUnderline) {
                         putc('}', out);
                         inUnderline = FALSE;
@@ -367,11 +378,9 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     } 
                     break;  
                 case QUOTE_LEFT:
-                    //add the character before but replace the " with ``
                     fprintf(out, "``");
                     break;
                 case QUOTE_RIGHT:
-                    //add the character before but replace the " with ''
                     fprintf(out, "''");
                     break;
                 case APOSTROPHE_LEFT:
@@ -382,8 +391,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     break;
                 case IMAGE:
                     reqLib_images = true;
-                    //NOTE only works with local images!
-                    //\includegraphics[width=10cm, height=10cm, keepaspectratio]{chick}
                     fprintf(out, "\\includegraphics[width=10cm, height=10cm, keepaspectratio]{");
 
                     //Move up to the url ignoring the alt text
@@ -406,8 +413,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     break;
 
                 case LINK: ; //Decliration can't follow a label so here is a empty statment
-                    //[This link](http://example.net/)
-                    //\href{http://www.wikibooks.org}{Wikibooks home}
                     int j = 1;
                     while(string[i+j] != ']') {
                         j++;
@@ -433,6 +438,12 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
                     free(namebuf);
                     i += j;
+                    break;
+                case MATH:
+                    reqLib_math = TRUE;
+                    fprintf(out, "$");
+                    i += 2;
+                    inInlineMath = !inInlineMath;
                     break;
                 default:
                     putc(string[i], out);
@@ -548,6 +559,10 @@ int main ( int argc, char *argv[] )
 
     if(reqLib_images) {
         fprintf(fout, "\\usepackage{graphicx}\n");
+    }
+
+    if(reqLib_math) {
+        fprintf(fout, "\\usepackage{amsmath}\n");
     }
 
     fprintf(fout, "\\begin{document}\n\n\n");

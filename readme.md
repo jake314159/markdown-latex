@@ -54,11 +54,11 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Links
 + Block quotes
 + Images
++ Math
 
 ##Markdown syntax TODO
 + Nested lists
 + Symbols
-+ Math
 + Underlined headings with === and --- for H1 and H2
 + Images from a url
 
@@ -91,6 +91,28 @@ author:Jake
 ```
 
 Please note that date and author are optional and that the comment block MUST be the first thing in the document otherwise it will be ignored.
+
+###Equations
+
+One thing latex is great at is equations. It was therefore important to allow the use of latex math. This can be done in two ways.
+
+**Block equations**
+
+```
+$$$
+\text{MyEquation} = \alpha + \beta
+$$$
+```
+
+Where the '$$$' symbols have their own line
+
+**Inline equations**
+
+```
+Or you can have maths inline like this $$$\alpha$$$.
+```
+
+Where the '$$$' are part of a seprate sentence.
 
 ##Licence
 
