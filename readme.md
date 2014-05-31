@@ -28,11 +28,13 @@ make
 make clean
 ```
 
-Once compiled it can then be installed (only tested on Linux) with the following command
+Once compiled it can then be installed (Linux only) with the following command
 
 ```bash
 make install
 ```
+
+For more details including OS specific instructions see the [wiki](https://github.com/jake314159/markdown-latex/wiki/Supported-OSes).
 
 ##Supported markdown
 
@@ -64,13 +66,13 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 
 ##Required tex packages
 
-Currently markdownlatex imports all the required tex packages even if they aren't used in the document. You can manually remove the unused packages from the tex file as a temporary solution until markdownlatex is designed to only include the packages needed. Below is a list of packages which will be included (and what they are used for).
+Below is a list of tex packages which may be required to compile the created .tex files. They will only be included if they are actually required so you may not need all of the packages listed below. Also included is a short explanation as to what they are used for so you can predict which ones you will need.
 
 + *listings* (For code blocks)
 + *tabularx* (used for tables)
 + *xcolor* (used for shading every other table row and code highlighting)
 + *tableShade* (used for shading every other table row)
-+ *geometry* (used for selecting custom margin sizes (can't be removed))
++ *geometry* (used for selecting custom margin sizes) (always required)
 + *ulem* (used for strikethroughs)
 + *graphicx* (used for images)
 + *amsmath* (used for equations)
@@ -113,7 +115,7 @@ Where the dollar symbols have their own line
 Or you can have maths inline like this $$$\alpha$$$.
 ```
 
-Where the dollar are part of a sentence.
+Where the dollar symbols are part of a sentence.
 
 ##Licence
 
