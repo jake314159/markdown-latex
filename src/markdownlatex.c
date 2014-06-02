@@ -83,6 +83,31 @@ void outOfMemoryError()
     exit(100);
 }
 
+void printHelp()
+{
+    printf("\nMarkdown latex v %s\n\n", VERSION);
+    putchar('\n');
+    printf(" -o <FILE>\n");
+    printf("    Specifies the latex output file\n");
+    putchar('\n');
+    printf(" -s <SIZE>\n");
+    printf("    Specifies the font size of the output file.\n");
+    printf("    Note: The only valid sizes are '10pt', '11pt' and '12pt' currently\n");
+    putchar('\n');
+    printf(" -d <DOCUMENT>\n");
+    printf("    Specifies the type of latex document to make.\n");
+    printf("    eg. 'report'\n");
+    putchar('\n');
+    printf(" -m <MARGIN>\n");
+    printf("    Specifies the size of the margins\n");
+    printf("    eg. '10mm' or '1in\n");
+    putchar('\n');
+    printf(" -c <COLORFILE>\n");
+    printf("    Specifies a color file to be used to highlight code\n");
+    printf("    See the online documentation for more information\n");
+    putchar('\n');
+}
+
 int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 {
     int endOfLineIndex = 0;
@@ -490,18 +515,22 @@ int main ( int argc, char *argv[] )
     char* marginSize = NULL;
     char* colorFile = NULL;
 
-    for(int i=0; i<argc-1; i++) {
-        if(argv[i][0] == '-' && argv[i][1] == 'o') {
+    for(int i=0; i<argc; i++) {
+        printf("%s %d\n", argv[i], compare(argv[i], "--help"));
+        if(!compare(argv[i], "-o")) {
             outFile = argv[++i];
-        } else if(argv[i][0] == '-' && argv[i][1] == 's') {
+        } else if(!compare(argv[i], "-d")) {
             //NOTE only '10pt' '11pt' and '12pt' are valid sizes
             fontSize = argv[++i];
-        } else if(argv[i][0] == '-' && argv[i][1] == 'd') {
+        } else if(!compare(argv[i], "-d")) {
             documentType = argv[++i];
-        } else if(argv[i][0] == '-' && argv[i][1] == 'm') {
+        } else if(!compare(argv[i], "-m")) {
             marginSize = argv[++i];
-        } else if(argv[i][0] == '-' && argv[i][1] == 'c') {
+        } else if(!compare(argv[i], "-c")) {
             colorFile = argv[++i];
+        } else if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
+            printHelp();
+            exit(0);
         }
     }
 
