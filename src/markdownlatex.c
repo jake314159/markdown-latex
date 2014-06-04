@@ -33,7 +33,10 @@
 #define TEMP_FILE "temp_markdownlatex_file~"
 
 int parseLine(char* string, int stringLength, FILE* in, FILE* out);
-int getStringLength(char* string);
+void outOfMemoryError();
+void printHelp();
+void paramiterError(char* error);
+
 
 const char* colorData =
 #include "colorData.txt"
@@ -124,8 +127,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         pageBreakPlaced = FALSE;
     }
 
-
-    //Do the things which are only valid if they apear at the start of a line
+    //Do the things which are only valid if they apear at the start of a line //
     Symbol lineStart = lex(string);
 
     if(lineStart.type == MATH && string[lineStart.loc+3] == '\0') {
@@ -144,6 +146,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         inInitialCommentBlock = TRUE;
         return 0;
     } 
+
     if(lineStart.type == COMMENT_CLOSE && inInitialCommentBlock) {
         inInitialCommentBlock = FALSE;
         if(displayTitle) {
@@ -154,7 +157,6 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         markdownStarted = TRUE;
     }
 
-    
     if(inInitialCommentBlock) {
         //Processes the initial comment block which can contain information about things (eg. the cover page)
         if(compareSub("title:", string, 6) == 0) {
@@ -187,23 +189,17 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         return 0;
     }
 
-    if(lineStart.type == NONE) {
-        // Here we can just write the entire line with no more checks because there are no symbols on this row
-    }
-
-
     if(lineStart.type == QUOTE_BLOCK && !isCode) {
         int qC = 1; 
         int j = lineStart.loc+1;
         Symbol s = lex(string+1);
         
         while(s.type == QUOTE_BLOCK) {
-            //fprintf(out, "%% qc= %d, quoteBlockDepth=%d, j=%d\n", qC, quoteBlockDepth, j);
             qC++;
             j += s.loc+1;
             s = lex(string+j);
         }
-        //fprintf(out, "%% qc= %d, quoteBlockDepth=%d\n", qC, quoteBlockDepth);
+
         i = j;
         if(qC > quoteBlockDepth) {
             //we have just gone into a block
@@ -286,22 +282,16 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         s.loc += i; //change loc to be in terms of string
 
         //Move up to next symbol the lexer 
-        if(!inComment) {
-            while( i < s.loc ) {
-                putc(string[i], out);
-                i++;
-            }
-        } else {
-            while( i < s.loc ) {
-                i++;
-            }
+        while( i < s.loc ) {
+            if(!inComment) putc(string[i], out);
+            i++;
         }
 
         /////////////////////////////////////////////////////////////////
-        // One very long else-if statement handling each possible type //
+        //           Statement handling each possible token            //
         /////////////////////////////////////////////////////////////////
         if(inComment && s.type != COMMENT_CLOSE) {     
-            i++; //Keep going until we find a comment   
+            i++; //Keep going until we find a comment close   
         } else if(isCode || s.type == CODE) {
             reqLib_code = true;
             if(isCode && s.type == CODE) {
@@ -320,14 +310,14 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 isCode = TRUE;
                 i += 3;
                 i += iC;
-                break; //Skip the extra information about the syntax highlighting for now
+                break;
             } else {  
-                //Note skip if not code formatting BUT is within a code block
+                // We are in a code block so just output the contents raw
                 putc(string[i], out);
             }
         } else if((inInlineMath && s.type != MATH) || inBlockMath) {
             reqLib_math = TRUE;
-            //else keep going until we find it
+            //else keep going until we find the end of the math block
             putc(string[i], out);
         } else {
 
@@ -494,8 +484,8 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     putc(string[i], out);
                     break;
 
-            } //end switch statment
-        } //end else containing the switch
+            }
+        }
     }
     
     //Write anything which has been delayed till the end of line has been reached (eg. close any headings)
