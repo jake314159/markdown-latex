@@ -506,6 +506,12 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     return 0;
 }
 
+void paramiterError(char* error)
+{
+    printf("\nParamiter error: %s\n", error);
+    exit(1);
+}
+
 int main ( int argc, char *argv[] )
 {
     char* outFile = NULL;
@@ -516,22 +522,25 @@ int main ( int argc, char *argv[] )
     char* colorFile = NULL;
 
     for(int i=0; i<argc; i++) {
-        printf("%s %d\n", argv[i], compare(argv[i], "--help"));
-        if(!compare(argv[i], "-o")) {
-            outFile = argv[++i];
-        } else if(!compare(argv[i], "-d")) {
-            //NOTE only '10pt' '11pt' and '12pt' are valid sizes
-            fontSize = argv[++i];
-        } else if(!compare(argv[i], "-d")) {
-            documentType = argv[++i];
-        } else if(!compare(argv[i], "-m")) {
-            marginSize = argv[++i];
-        } else if(!compare(argv[i], "-c")) {
-            colorFile = argv[++i];
-        } else if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
+        if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
             printHelp();
             exit(0);
-        }
+        } else if(!compare(argv[i], "-o")) {
+            if(i == argc-1) paramiterError("Output file not specified");
+            outFile = argv[++i];
+        } else if(!compare(argv[i], "-d")) {
+            if(i == argc-1) paramiterError("Font size not specified");
+            fontSize = argv[++i];
+        } else if(!compare(argv[i], "-d")) {
+            if(i == argc-1) paramiterError("Document type not specified");
+            documentType = argv[++i];
+        } else if(!compare(argv[i], "-m")) {
+            if(i == argc-1) paramiterError("Margin size not specified");
+            marginSize = argv[++i];
+        } else if(!compare(argv[i], "-c")) {
+            if(i == argc-1) paramiterError("Color file not specified");
+            colorFile = argv[++i];
+        } 
     }
 
     if (argv[argc-1][0] == '-' && argv[argc-1][1] == 'v') {
