@@ -17,23 +17,23 @@ CCFLAGS = -std=c99 -Wall
 all: main
 check: tester
 
-main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o
+main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o $(srcdir)/$(SRC)/lexer.h $(srcdir)/$(SRC)/parserstringops.h $(srcdir)/$(SRC)/tableProcessor.h $(srcdir)/$(SRC)/stdvals.h $(srcdir)/$(SRC)/versionData.h
 	$(CC) $(srcdir)/$(BIN)/markdownlatex.o $(srcdir)/$(BIN)/lexer.o $(srcdir)/$(BIN)/parserstringops.o $(srcdir)/$(BIN)/tableProcessor.o $(CCFLAGS) -o $(srcdir)/$(BIN)/$(FILE_OUT)
 
 markdownlatex.o: src/markdownlatex.c bindir
 	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/markdownlatex.c -o $(srcdir)/$(BIN)/markdownlatex.o
 
-lexer.o: $(srcdir)/$(SRC)/lexer.c bindir
+lexer.o: $(srcdir)/$(SRC)/lexer.c bindir $(srcdir)/$(SRC)/lexer.h
 	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/lexer.c -o $(srcdir)/$(BIN)/lexer.o
 
-parserstringops.o: $(srcdir)/$(SRC)/parserstringops.c bindir
+parserstringops.o: $(srcdir)/$(SRC)/parserstringops.c bindir $(srcdir)/$(SRC)/parserstringops.h $(srcdir)/$(SRC)/stdvals.h
 	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/parserstringops.c -o $(srcdir)/$(BIN)/parserstringops.o
 
-tableProcessor.o: $(srcdir)/$(SRC)/tableProcessor.c bindir
+tableProcessor.o: $(srcdir)/$(SRC)/tableProcessor.c bindir $(srcdir)/$(SRC)/lexer.h $(srcdir)/$(SRC)/parserstringops.h $(srcdir)/$(SRC)/stdvals.h
 	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/tableProcessor.c -o $(srcdir)/$(BIN)/tableProcessor.o
 
 bindir:
-	mkdir -p $(BIN)
+	[ -f $(BIN) ] || mkdir -p $(BIN)
 
 testbindir:
 	mkdir -p testbin
