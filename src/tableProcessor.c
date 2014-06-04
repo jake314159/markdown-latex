@@ -140,7 +140,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         pos++;
         if(c == '\0') break;
         if(c == '|') {
-            if(i != numberOfCols-1) {
+            if(i < numberOfCols-1) {
                 putc(' ', out);
                 putc('&', out);
                 putc(' ', out);
@@ -159,7 +159,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         do {
             c = getc(in);
             if(c == '|') {
-                if(i != -1 && i != numberOfCols-1) putc('&', out);
+                if(i != -1 && i < numberOfCols-1) putc('&', out);
                 i++;
             } else if (c != '\n'){
                 putc(c, out);
