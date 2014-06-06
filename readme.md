@@ -51,7 +51,7 @@ Not all markdown is supported (yet). Below is a list of the supported markdown s
 + Page break - not standard markdown but can be done with 4 or more empty lines
 + Horizontal rules (3 or more \* or \- (ignoring spaces))
 + Backslash escapes
-+ Tables (Markdown within tables however is not currently supported)
++ Tables
 + Line breaks
 + Links
 + Block quotes

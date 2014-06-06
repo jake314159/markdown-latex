@@ -26,17 +26,12 @@
 #include "tableProcessor.h"
 #include "stdvals.h"
 #include "versionData.h"
+#include "markdownlatex.h"
 
 #define BUF_SIZE 128
 #define END_OF_LINE_BUFFER_SIZE 50
 
 #define TEMP_FILE "temp_markdownlatex_file~"
-
-int parseLine(char* string, int stringLength, FILE* in, FILE* out);
-void outOfMemoryError();
-void printHelp();
-void paramiterError(char* error);
-
 
 const char* colorData =
 #include "colorData.txt"

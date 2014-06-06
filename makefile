@@ -17,10 +17,10 @@ CCFLAGS = -std=c99 -Wall
 all: main
 check: tester
 
-main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o $(srcdir)/$(SRC)/lexer.h $(srcdir)/$(SRC)/parserstringops.h $(srcdir)/$(SRC)/tableProcessor.h $(srcdir)/$(SRC)/stdvals.h $(srcdir)/$(SRC)/versionData.h
+main: bindir markdownlatex.o lexer.o parserstringops.o tableProcessor.o
 	$(CC) $(srcdir)/$(BIN)/markdownlatex.o $(srcdir)/$(BIN)/lexer.o $(srcdir)/$(BIN)/parserstringops.o $(srcdir)/$(BIN)/tableProcessor.o $(CCFLAGS) -o $(srcdir)/$(BIN)/$(FILE_OUT)
 
-markdownlatex.o: src/markdownlatex.c bindir
+markdownlatex.o: src/markdownlatex.c bindir $(srcdir)/$(SRC)/lexer.h $(srcdir)/$(SRC)/parserstringops.h $(srcdir)/$(SRC)/tableProcessor.h $(srcdir)/$(SRC)/stdvals.h $(srcdir)/$(SRC)/versionData.h $(srcdir)/$(SRC)/markdownlatex.h
 	$(CC) $(CCFLAGS) -c $(srcdir)/$(SRC)/markdownlatex.c -o $(srcdir)/$(BIN)/markdownlatex.o
 
 lexer.o: $(srcdir)/$(SRC)/lexer.c bindir $(srcdir)/$(SRC)/lexer.h

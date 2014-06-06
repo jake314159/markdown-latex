@@ -23,7 +23,10 @@
 #include "lexer.h"
 #include "parserstringops.h"
 #include "stdvals.h"
+#include "markdownlatex.h"
 #include <stdlib.h>
+
+#define CELL_BUF_SIZE 1024
 
 typedef enum {DEFAULT, LEFT, RIGHT, CENTER} alignment;
 
@@ -135,11 +138,20 @@ int processTable(char* line1, FILE* in, FILE* out)
     i = 0; //number of cols we have written
     c = line1[pos];
     pos++;
+
+    char* buf = malloc(sizeof(char) * CELL_BUF_SIZE);
+    if( buf == NULL ) outOfMemoryError();
+    int buf_pos = 0;
+
     while(c != '\n' && c != '\0') {
         c = line1[pos];
         pos++;
         if(c == '\0') break;
         if(c == '|') {
+            buf[buf_pos] = '\0';
+            parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
+            buf_pos = 0;
+            buf[0] = '\0';
             if(i < numberOfCols-1) {
                 putc(' ', out);
                 putc('&', out);
@@ -147,7 +159,18 @@ int processTable(char* line1, FILE* in, FILE* out)
             }
             i++;
         } else if (c != '\n'){
-            putc(c, out);
+            if(buf_pos < CELL_BUF_SIZE-1) {
+                buf[buf_pos] = c;
+                buf_pos++;
+            } else {
+                // If we use the entire buffer (very inlikely) then parse the cell in a few attempts
+                // This may cause problems in some very rare occations but should work 99.99% of the time
+                //TODO refactor this to be safe
+                buf[buf_pos] = '\0';
+                parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
+                buf_pos = 1;
+                buf[0] = c;
+            }
         }
     }
     
@@ -159,14 +182,32 @@ int processTable(char* line1, FILE* in, FILE* out)
         do {
             c = getc(in);
             if(c == '|') {
+                buf[buf_pos] = '\0';
+                parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
+                buf_pos = 0;
+                buf[0] = '\0';
                 if(i != -1 && i < numberOfCols-1) putc('&', out);
                 i++;
             } else if (c != '\n'){
-                putc(c, out);
+                if(buf_pos < CELL_BUF_SIZE-1) {
+                    buf[buf_pos] = c;
+                    buf_pos++;
+                } else {
+                    // If we use the entire buffer (very inlikely) then parse the cell in a few attempts
+                    // This may cause problems in some very rare occations but should work 99.99% of the time
+                    //TODO refactor this to be safe
+                    buf[buf_pos] = '\0';
+                    parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
+                    buf_pos = 1;
+                    buf[0] = c;
+                }
             }
         } while(c != '\n');
+        
+
         fprintf(out, "\\\\\n");
     }
+    free(buf);
 
     if(tablex) {
         fprintf(out, "\\end{tabularx}");
