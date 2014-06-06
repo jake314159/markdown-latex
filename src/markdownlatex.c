@@ -104,6 +104,12 @@ void printHelp()
     printf("    Specifies a color file to be used to highlight code\n");
     printf("    See the online documentation for more information\n");
     putchar('\n');
+    printf(" -l\n");
+    printf("    Set orientation to landscape\n");
+    putchar('\n');
+    printf(" -p\n");
+    printf("    Set orientation to portrait\n");
+    putchar('\n');
 }
 
 int parseLine(char* string, int stringLength, FILE* in, FILE* out)
@@ -505,6 +511,7 @@ int main ( int argc, char *argv[] )
     char* documentType = NULL;
     char* marginSize = NULL;
     char* colorFile = NULL;
+    char* orientation = NULL;
 
     for(int i=0; i<argc; i++) {
         if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
@@ -525,7 +532,11 @@ int main ( int argc, char *argv[] )
         } else if(!compare(argv[i], "-c")) {
             if(i == argc-1) paramiterError("Color file not specified");
             colorFile = argv[++i];
-        } 
+        } else if(!compare(argv[i], "-l")) {
+            orientation = "landscape";
+        } else if(!compare(argv[i], "-p")) {
+            orientation = "portrait";
+        }
     }
 
     if (argv[argc-1][0] == '-' && argv[argc-1][1] == 'v') {
@@ -550,6 +561,8 @@ int main ( int argc, char *argv[] )
     if(fontSize == NULL)        fontSize = "11pt";
     if(marginSize == NULL)      marginSize = "1.5in";
     if(documentType == NULL)    documentType = "report";
+    if(orientation == NULL)     orientation = "portrait";
+
 
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
@@ -586,8 +599,8 @@ int main ( int argc, char *argv[] )
     fclose(foutTemp);
 
     //Required libaries
-    fprintf(fout, "\\documentclass[%s,a4paper,oneside]{%s}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
-                        fontSize, documentType, marginSize);
+    fprintf(fout, "\\documentclass[%s,a4paper,oneside,%s]{%s}\n\\usepackage{hyperref}\n\\usepackage[margin=%s]{geometry}\n\\usepackage{ulem}\n",
+                        fontSize, orientation, documentType, marginSize);
 
     // Optional libaries
     if(reqLib_code || reqLib_table) {
