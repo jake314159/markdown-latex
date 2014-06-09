@@ -26,7 +26,7 @@
 #include "markdownlatex.h"
 #include <stdlib.h>
 
-#define CELL_BUF_SIZE 1024
+#define CELL_BUF_SIZE 64
 
 typedef enum {DEFAULT, LEFT, RIGHT, CENTER} alignment;
 
@@ -139,7 +139,8 @@ int processTable(char* line1, FILE* in, FILE* out)
     c = line1[pos];
     pos++;
 
-    char* buf = malloc(sizeof(char) * CELL_BUF_SIZE);
+    int buf_size = CELL_BUF_SIZE;
+    char* buf = malloc(sizeof(char) * buf_size);
     if( buf == NULL ) outOfMemoryError();
     int buf_pos = 0;
 
@@ -159,18 +160,19 @@ int processTable(char* line1, FILE* in, FILE* out)
             }
             i++;
         } else if (c != '\n'){
-            if(buf_pos < CELL_BUF_SIZE-1) {
-                buf[buf_pos] = c;
-                buf_pos++;
-            } else {
-                // If we use the entire buffer (very inlikely) then parse the cell in a few attempts
-                // This may cause problems in some very rare occations but should work 99.99% of the time
-                //TODO refactor this to be safe
-                buf[buf_pos] = '\0';
-                parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
-                buf_pos = 1;
-                buf[0] = c;
+            if(buf_pos >= buf_size-1) {
+                //We need a bigger buffer!
+                buf_size *= 2;
+                char* newBuf = malloc(sizeof(char) * buf_size);
+                if( newBuf == NULL ) outOfMemoryError();
+                for(int i=0; i<buf_pos; i++) {
+                    newBuf[i] = buf[i];
+                }
+                free(buf);
+                buf = newBuf;
             }
+            buf[buf_pos] = c;
+            buf_pos++;
         }
     }
     
@@ -189,18 +191,19 @@ int processTable(char* line1, FILE* in, FILE* out)
                 if(i != -1 && i < numberOfCols-1) putc('&', out);
                 i++;
             } else if (c != '\n'){
-                if(buf_pos < CELL_BUF_SIZE-1) {
-                    buf[buf_pos] = c;
-                    buf_pos++;
-                } else {
-                    // If we use the entire buffer (very inlikely) then parse the cell in a few attempts
-                    // This may cause problems in some very rare occations but should work 99.99% of the time
-                    //TODO refactor this to be safe
-                    buf[buf_pos] = '\0';
-                    parseLine(buf, buf_pos, in, out); //Use the markdownlatex method to process the cell
-                    buf_pos = 1;
-                    buf[0] = c;
+                if(buf_pos >= buf_size-1) {
+                    //We need a bigger buffer!
+                    buf_size *= 2;
+                    char* newBuf = malloc(sizeof(char) * buf_size);
+                    if( newBuf == NULL ) outOfMemoryError();
+                    for(int i=0; i<buf_pos; i++) {
+                        newBuf[i] = buf[i];
+                    }
+                    free(buf);
+                    buf = newBuf;
                 }
+                buf[buf_pos] = c;
+                buf_pos++;
             }
         } while(c != '\n');
         
