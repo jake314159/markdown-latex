@@ -506,6 +506,7 @@ void paramiterError(char* error)
 int main ( int argc, char *argv[] )
 {
     char* outFile = NULL;
+    char* inFile = NULL;
 
     char* fontSize = NULL;
     char* documentType = NULL;
@@ -513,7 +514,7 @@ int main ( int argc, char *argv[] )
     char* colorFile = NULL;
     char* orientation = NULL;
 
-    for(int i=0; i<argc; i++) {
+    for(int i=1; i<argc; i++) {
         if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
             printHelp();
             exit(0);
@@ -536,6 +537,8 @@ int main ( int argc, char *argv[] )
             orientation = "landscape";
         } else if(!compare(argv[i], "-p")) {
             orientation = "portrait";
+        } else {
+            inFile = argv[i];
         }
     }
 
@@ -547,12 +550,15 @@ int main ( int argc, char *argv[] )
     FILE *fp = NULL;
     FILE *fout = NULL;
     FILE *foutTemp = NULL;
-    if(argc > 1) {
-        fp = fopen(argv[argc-1], "r"); // error check this!
-        if(outFile != NULL) {
-            fout = fopen(outFile, "w");
-        } //else leave as stout
-    }
+
+    if( inFile != NULL) {
+        fp = fopen(inFile, "r"); // error check this!
+    } //else leave as stdin
+
+    if(outFile != NULL) {
+        fout = fopen(outFile, "w");
+    } //else leave as stout
+
     foutTemp = fopen(TEMP_FILE, "w");
 
     //Set default settings
@@ -562,7 +568,6 @@ int main ( int argc, char *argv[] )
     if(marginSize == NULL)      marginSize = "1.5in";
     if(documentType == NULL)    documentType = "report";
     if(orientation == NULL)     orientation = "portrait";
-
 
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
