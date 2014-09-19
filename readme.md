@@ -18,6 +18,12 @@ It can also be run using standard input and output with the command
 markdownlatex < example.md > output.tex
 ```
 
+Once the tex file has been created you can then use your prefered latex compiler to make it into something usable. For example:
+
+```bash
+pdflatex output.tex
+```
+
 ##Compile and install
 
 The file can be compiled with the following commands
