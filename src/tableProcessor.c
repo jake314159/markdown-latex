@@ -80,6 +80,12 @@ int processTable(char* line1, FILE* in, FILE* out)
         c = getc(in);
         if(c == '|') {
             i++;
+            if( i > numberOfCols) {
+                numberOfCols++;
+                cols = realloc (cols, numberOfCols*sizeof(Col));
+                Col c = {FALSE, FALSE, DEFAULT};
+                cols[i-1] = c;
+            }
             c = getc(in);
             if(c == ':') {
                 cols[i].l = TRUE;
@@ -89,6 +95,12 @@ int processTable(char* line1, FILE* in, FILE* out)
             if(c == '|') {
                 cols[i].r = TRUE;
                 i++;
+                if( i > numberOfCols) {
+                    numberOfCols++;
+                    cols = realloc (cols, numberOfCols*sizeof(Col));
+                    Col c = {FALSE, FALSE, DEFAULT};
+                    cols[i-1] = c;
+                }
                 c = getc(in);
                 if(c == ':') {
                     
@@ -96,7 +108,7 @@ int processTable(char* line1, FILE* in, FILE* out)
                 }
             }
         }
-    } while(c != '\n' && i < numberOfCols);
+    } while(c != '\n');// && i < numberOfCols);
 
     //use up to the new line if not there already
     while(c != '\n') c = getc(in);
@@ -177,6 +189,14 @@ int processTable(char* line1, FILE* in, FILE* out)
             buf[buf_pos] = c;
             buf_pos++;
         }
+    }
+
+    // Put some empty cells at the end if there are not enough
+    while(i < numberOfCols-1) {
+        putc(' ', out);
+        putc('&', out);
+        putc(' ', out);
+        i++;
     }
     
     fprintf(out, "\\\\\n\\showrowcolors \n\\hline\n");
