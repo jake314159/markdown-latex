@@ -79,9 +79,11 @@ int processTable(char* line1, FILE* in, FILE* out)
         if(c == '|') {
             i++;
             if( i > numberOfCols) {
-                // There should be more cols than first predicted (using the first line of the table)
+                // There should be more cols than first predicted (using the first line of the table) 
                 numberOfCols++;
                 cols = realloc (cols, numberOfCols*sizeof(Col));
+                if(cols == NULL) outOfMemoryError();
+
                 Col c = {FALSE, FALSE, DEFAULT};
                 cols[i-1] = c;
             }
@@ -98,6 +100,8 @@ int processTable(char* line1, FILE* in, FILE* out)
                     // There should be more cols than first predicted (using the first line of the table)
                     numberOfCols++;
                     cols = realloc (cols, numberOfCols*sizeof(Col));
+                    if(cols == NULL) outOfMemoryError();
+
                     Col c = {FALSE, FALSE, DEFAULT};
                     cols[i-1] = c;
                 }
