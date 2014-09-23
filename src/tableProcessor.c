@@ -60,8 +60,6 @@ int processTable(char* line1, FILE* in, FILE* out)
     } 
     numberOfCols -= 1; //Reduce for the first and last '|' which means we get 1 more than we should
 
-    //fprintf(stdout, "We have %d cols\n", numberOfCols);
-
     cols = malloc(numberOfCols * sizeof(Col));
     if(cols == NULL) {
         fprintf(stderr, "Out of memory\nUnable to process table.");
@@ -81,6 +79,7 @@ int processTable(char* line1, FILE* in, FILE* out)
         if(c == '|') {
             i++;
             if( i > numberOfCols) {
+                // There should be more cols than first predicted (using the first line of the table)
                 numberOfCols++;
                 cols = realloc (cols, numberOfCols*sizeof(Col));
                 Col c = {FALSE, FALSE, DEFAULT};
@@ -96,6 +95,7 @@ int processTable(char* line1, FILE* in, FILE* out)
                 cols[i].r = TRUE;
                 i++;
                 if( i > numberOfCols) {
+                    // There should be more cols than first predicted (using the first line of the table)
                     numberOfCols++;
                     cols = realloc (cols, numberOfCols*sizeof(Col));
                     Col c = {FALSE, FALSE, DEFAULT};
@@ -108,7 +108,7 @@ int processTable(char* line1, FILE* in, FILE* out)
                 }
             }
         }
-    } while(c != '\n');// && i < numberOfCols);
+    } while(c != '\n');
 
     //use up to the new line if not there already
     while(c != '\n') c = getc(in);
@@ -245,14 +245,4 @@ int processTable(char* line1, FILE* in, FILE* out)
     free(cols);
     return 0;
 }
-
-/**
-
-\begin{tabular}{ l c r }
-  1 & 2 & 3 \\
-  4 & 5 & 6 \\
-  7 & 8 & 9 \\
-\end{tabular}
-
-**/
 
