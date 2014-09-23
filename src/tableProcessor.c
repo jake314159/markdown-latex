@@ -98,6 +98,9 @@ int processTable(char* line1, FILE* in, FILE* out)
         }
     } while(c != '\n' && i < numberOfCols);
 
+    //use up to the new line if not there already
+    while(c != '\n') c = getc(in);
+
     for(i=0; i<numberOfCols; i++) {
         if(cols[i].r && cols[i].l) {
             cols[i].align = CENTER;
