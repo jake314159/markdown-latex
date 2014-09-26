@@ -3,6 +3,7 @@ SHELL = /bin/sh
 
 #Users bin (used when installing)
 USR_BIN = /usr/bin
+MAN_LOCATION = /usr/share/man/man1
 
 # Name of the generated binary
 FILE_OUT = markdownlatex
@@ -47,6 +48,7 @@ clean:
 
 install: $(srcdir)/$(BIN)/markdownlatex
 	cp $(srcdir)/$(BIN)/markdownlatex $(USR_BIN)/markdownlatex
+	cp 'man/markdown-latex.1' $(MAN_LOCATION)/markdown-latex.1
 
 uninstall: $(USR_BIN)/markdownlatex
 	rm $(USR_BIN)/markdownlatex

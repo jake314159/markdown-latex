@@ -1,0 +1,52 @@
+.TH markdown-latex 1
+.SH NAME
+markdown-latex \- Compiles markdown into LaTeX
+.SH SYNOPSIS
+.B markdown-latex
+[\fB\-o\fR \fIOUTPUT_FILE\fR]
+[\fB\-s\fR \fIFONT_SIZE\fR]
+[\fB\-d\fR \fIDOCUMENT_TYPE\fR]
+[\fB\-m\fR \fIMARGIN\fR]
+[\fB\-c\fR \fICOLOR_FILE\fR]
+[\fB\-l\fR \fIFONT_SIZE\fR]
+[\fB\-p\fR]
+[\fBINPUT_FILE\fR]
+.SH DESCRIPTION
+.B markdown-latex
+takes as an input a \fI.md\fR file and creates a \fILaTeX\fR file that can be compiled with any \fILaTeX\fR compiler.
+.SH OPTIONS
+.TP
+.B \-o\fR <OUTPUT_FILE>
+Sets the file where the compiled code is going to be saved.
+If the output file already exists it will be overwritten without warning.
+If not specified the default is to use standard output.
+.TP
+.B \-s\fR <FONT_SIZE>
+Sets the font size to be used in the compiled \fILaTeX\fR document
+.TP
+.B \-d\fR <DOCUMENT_TYPE>
+Specifies the type of \fILaTeX\fR document to create.
+The default is "\fIreport\fR"
+.TP
+.B \-m\fR <MARGIN>
+Specifies the margin size to be used in the compiled \fILaTeX\fR file.
+The units which are valid include "\fIcm\fR", "\fImm\fR" and "\fIin\fR".
+.TP
+.B \-c\fR <COLOR_FILE>
+Specifies the color file to be used to highlight code.
+See the online documentation for more information.
+.TP
+.B \-l\fR
+Sets the compiled document to landscape.
+By default documents are formatted in portrait mode.
+If more than one "\fI\-l\fR" or "\fI\-p\fR" is specified the the last one in the command will be used.
+.TP
+.B \-p\fR
+Sets the compiled document to portrait.
+By default documents are formatted in portrait mode.
+If more than one "\fI\-l\fR" or "\fI\-p\fR" is specified the the last one in the command will be used.
+.TP
+<INPUT_FILE>
+The input "\fI.md\fR" file is specified at the end of the command.
+The file is not edited by the program.
+If not specified then standard input will be used as an input instead. 
