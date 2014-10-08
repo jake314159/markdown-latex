@@ -1,8 +1,8 @@
 /*
    --------------------------------
-      MarkdownLatex  
+      MarkdownLatex
       markdownlatex.c
-   -------------------------------- 
+   --------------------------------
 
    Copyright 2014 Jacob Causon
 
@@ -20,7 +20,7 @@
 */
 
 #include <stdio.h>
-#include <stdlib.h> 
+#include <stdlib.h>
 #include "lexer.h"
 #include "parserstringops.h"
 #include "tableProcessor.h"
@@ -121,7 +121,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         groupedNewLineCount++;
         if(!pageBreakPlaced && groupedNewLineCount >= 4) {
             fprintf(out, "\\newpage\n");
-            pageBreakPlaced = TRUE;     
+            pageBreakPlaced = TRUE;
         }
     }else if(groupedNewLineCount > 0) {
         groupedNewLineCount = 0;
@@ -146,7 +146,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
     if(lineStart.type == COMMENT_OPEN && !markdownStarted) {
         inInitialCommentBlock = TRUE;
         return 0;
-    } 
+    }
 
     if(lineStart.type == COMMENT_CLOSE && inInitialCommentBlock) {
         inInitialCommentBlock = FALSE;
@@ -186,15 +186,15 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             }
             putc('}', out);
         }
-        
+
         return 0;
     }
 
     if(lineStart.type == QUOTE_BLOCK && !isCode) {
-        int qC = 1; 
+        int qC = 1;
         int j = lineStart.loc+1;
         Symbol s = lex(string+1);
-        
+
         while(s.type == QUOTE_BLOCK) {
             qC++;
             j += s.loc+1;
@@ -222,7 +222,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         }
         quoteBlockDepth = 0;
     }
-    
+
     if(inList) {
         if((lineStart.type == ITEMIZE && lineStart.loc < 2) || (lineStart.type == ITALIC && lineStart.loc == 0)) {
             fprintf(out, "\\item ");
@@ -242,7 +242,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             //writeStringToBuffer(string, buf, 5);
             //return;
         }
-    } 
+    }
 
     if(inNumberList) {
         if(lineStart.type == ENUMERATE && lineStart.loc < 2) {
@@ -282,7 +282,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         Symbol s = lex(string + i);
         s.loc += i; //change loc to be in terms of string
 
-        //Move up to next symbol the lexer 
+        //Move up to next symbol the lexer
         while( i < s.loc ) {
             if(!inComment) putc(string[i], out);
             i++;
@@ -291,8 +291,8 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
         /////////////////////////////////////////////////////////////////
         //           Statement handling each possible token            //
         /////////////////////////////////////////////////////////////////
-        if(inComment && s.type != COMMENT_CLOSE) {     
-            i++; //Keep going until we find a comment close   
+        if(inComment && s.type != COMMENT_CLOSE) {
+            i++; //Keep going until we find a comment close
         } else if(isCode || s.type == CODE) {
             reqLib_code = true;
             if(isCode && s.type == CODE) {
@@ -312,7 +312,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                 i += 3;
                 i += iC;
                 break;
-            } else {  
+            } else {
                 // We are in a code block so just output the contents raw
                 putc(string[i], out);
             }
@@ -337,7 +337,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     break;
                 case H2:
                     fprintf(out, "\\subsection*{");
-                    
+
                     if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
                         writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
                         endOfLineIndex += 1; //length added to end of line
@@ -345,10 +345,10 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
 
                     i += 1; //Go past the extra character we looked fowards too
                     break;
-                
+
                 case H3:
                     fprintf(out, "\\subsubsection*{");
-                    
+
                     if(endOfLineIndex < END_OF_LINE_BUFFER_SIZE) {
                         writeStringToBuffer("}", endOfLineBuff, endOfLineIndex);
                         endOfLineIndex += 1; //length added to end of line
@@ -368,7 +368,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                         fprintf(out, "\\textbf{");
                         inBold = TRUE;
                         i += 1;
-                    }   
+                    }
                     break;
                 case STRIKETHROUGH:
                     if(inStrikethrough) {
@@ -379,7 +379,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                         fprintf(out, "\\sout{");
                         inStrikethrough = TRUE;
                         i += 1;
-                    }   
+                    }
                     break;
                 case ITALIC:
                     if(inItalic) {
@@ -388,7 +388,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     } else {
                         fprintf(out, "\\textit{");
                         inItalic = TRUE;
-                    }   
+                    }
                     break;
                 case UNDERLINE:
                     if(inUnderline) {
@@ -397,8 +397,8 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     } else {
                         fprintf(out, "\\underline{");
                         inUnderline = TRUE;
-                    } 
-                    break;  
+                    }
+                    break;
                 case QUOTE_LEFT:
                     fprintf(out, "``");
                     break;
@@ -420,9 +420,9 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                         i++;
                     }
                     i++;
-                    
+
                     while(string[i+1] != '"' && string[i] != ')') {
-                        putc(string[i], out);   
+                        putc(string[i], out);
 
                         i++;
                     }
@@ -449,7 +449,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
                     namebuf[j-1] = '\0';
 
                     fprintf(out, "\\href{");
-                    
+
                     j+=2;
                     while(string[i+j] != ')') {
                         putc(string[i+j], out);
@@ -488,7 +488,7 @@ int parseLine(char* string, int stringLength, FILE* in, FILE* out)
             }
         }
     }
-    
+
     //Write anything which has been delayed till the end of line has been reached (eg. close any headings)
     if(endOfLineIndex > 0) {
         endOfLineBuff[endOfLineIndex] = '\0';
@@ -508,12 +508,14 @@ int main ( int argc, char *argv[] )
     char* outFile = NULL;
     char* inFile = NULL;
 
-    char* fontSize = NULL;
-    char* documentType = NULL;
-    char* marginSize = NULL;
+    //Set the default values
+    char* fontSize = "11pt";
+    char* marginSize = "1.5in";
+    char* documentType = "report";
+    char* orientation = "portrait";
     char* colorFile = NULL;
-    char* orientation = NULL;
 
+    // Go over paramiters and update the settings if provided
     for(int i=1; i<argc; i++) {
         if(!compare(argv[i], "-h") || !compare(argv[i], "--help")) {
             printHelp();
@@ -547,8 +549,9 @@ int main ( int argc, char *argv[] )
         return 0;
     }
 
-    FILE *fp = NULL;
-    FILE *fout = NULL;
+    // Set default file streams and change if a different one is provided
+    FILE *fp = stdin;
+    FILE *fout = stdout;
     FILE *foutTemp = NULL;
 
     if( inFile != NULL) {
@@ -561,19 +564,11 @@ int main ( int argc, char *argv[] )
 
     foutTemp = fopen(TEMP_FILE, "w");
 
-    //Set default settings
-    if(fp == NULL)              fp = stdin;
-    if(fout == NULL)            fout = stdout;
-    if(fontSize == NULL)        fontSize = "11pt";
-    if(marginSize == NULL)      marginSize = "1.5in";
-    if(documentType == NULL)    documentType = "report";
-    if(orientation == NULL)     orientation = "portrait";
-
     char* buf = malloc(bufferSize * sizeof(char));
     if(buf == NULL) {
         outOfMemoryError();
     }
-    
+
     // Write to a temp file
     // This is so we can know what libaries we need to put in the header
     // These file will be copied into the actual file later and then deleted
@@ -610,12 +605,12 @@ int main ( int argc, char *argv[] )
     // Optional libaries
     if(reqLib_code || reqLib_table) {
         fprintf(fout, "\\usepackage[table]{xcolor}\n\\definecolor{tableShade}{gray}{0.9}\n");
-    }    
+    }
 
     if(reqLib_code) {
         fprintf(fout, "\\usepackage{listings}\n");
         char success = false;
-        
+
         if(colorFile != NULL) {
             FILE* colorFileFile = fopen(colorFile, "r");
             if(colorFileFile != NULL) {
@@ -645,7 +640,7 @@ int main ( int argc, char *argv[] )
     }
 
     fprintf(fout, "\\begin{document}\n\n\n");
-    
+
     //Write the temp file into the actual file
     FILE* finTemp = fopen(TEMP_FILE, "r");
     copyFileContents(finTemp, fout);
